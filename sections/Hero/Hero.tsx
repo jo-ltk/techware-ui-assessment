@@ -96,11 +96,11 @@ export function Hero() {
 
         <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[48%] left-[5%] z-40 max-w-[min(90%,42rem)] text-left sm:left-[8%] sm:top-[50%] md:left-[10%] md:max-w-[42rem]">
-              <h2 className="text-feature-title font-medium text-foreground">
+            <div className="absolute top-[24%] left-[5%] z-40 max-w-[min(78%,46rem)] text-left sm:top-[26%] sm:left-[8%] md:left-[10%]">
+              <h2 className="font-sans text-[clamp(2rem,3.6vw+0.75rem,3.75rem)] font-medium leading-[1.05] tracking-[-0.06em] text-foreground">
                 {hero.showcase.heading}
               </h2>
-              <p className="text-body-large mt-4 max-w-[36rem] sm:mt-5">
+              <p className="mt-5 max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted sm:mt-6">
                 {hero.showcase.description}
               </p>
             </div>
@@ -122,7 +122,7 @@ export function Hero() {
               className="absolute left-1/2 z-20 w-[180px] -translate-x-1/2 top-[-120px] sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
             />
 
-            <div className="absolute top-[-7%] left-[10%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg sm:left-[14%] sm:top-[-20%]">
+            <div className="absolute top-[-7%] left-[14%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg sm:left-[16%] sm:top-[-20%] md:left-[21%]">
               <div className="flex w-7 shrink-0 flex-col items-center justify-center">
                 {assets.heroShowcase.avatars.map((avatar, index) => (
                   <Image
@@ -131,7 +131,7 @@ export function Hero() {
                     alt={avatar.alt}
                     width={avatar.width}
                     height={avatar.height}
-                    className={`relative size-7 rounded-full border-2 border-white bg-white object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] ${index > 0 ? "-mt-4" : ""}`}
+                    className={`relative size-7 rounded-full border-2 border-white/60 bg-white/30 object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] ${index > 0 ? "-mt-4" : ""}`}
                     style={{ zIndex: index + 1 }}
                   />
                 ))}
