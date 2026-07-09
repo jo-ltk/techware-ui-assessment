@@ -185,7 +185,7 @@ export function WhoItsFor() {
                 return (
                   <div
                     key={industry.label}
-                    className="absolute h-0 w-0 border-2 border-red-500 size-10"
+                    className="absolute h-0 w-0 "
                     style={{
                       left: `${ORBIT_CENTER_X}%`,
                       top: `${ORBIT_CENTER_Y}%`,
