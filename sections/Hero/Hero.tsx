@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArrowUpRight, Play } from "lucide-react";
 
+import { ScrollReveal } from "@/components/ScrollReveal";
 import { assets } from "@/constants";
 
 import { FolderFlap } from "./FolderFlap";
@@ -97,12 +98,25 @@ export function Hero() {
         <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
             <div className="absolute top-[24%] left-[5%] z-40 max-w-[min(78%,46rem)] text-left sm:top-[26%] sm:left-[8%] md:left-[10%]">
-              <h2 className="font-sans text-[clamp(2rem,3.6vw+0.75rem,3.75rem)] font-medium leading-[1.05] tracking-[-0.06em] text-foreground">
+              <ScrollReveal
+                baseOpacity={0.2}
+                enableBlur={false}
+                baseRotation={0}
+                containerClassName="!m-0"
+                textClassName="font-sans text-[clamp(2rem,3.6vw+0.75rem,3.75rem)] font-medium leading-[1.05] tracking-[-0.06em] text-foreground"
+              >
                 {hero.showcase.heading}
-              </h2>
-              <p className="mt-5 max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted sm:mt-6">
+              </ScrollReveal>
+              <ScrollReveal
+                as="p"
+                baseOpacity={0.2}
+                enableBlur={false}
+                baseRotation={0}
+                containerClassName="!m-0 mt-5 sm:mt-6"
+                textClassName="max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted"
+              >
                 {hero.showcase.description}
-              </p>
+              </ScrollReveal>
             </div>
 
             <Image

@@ -7,5 +7,6 @@ export { Gradient } from "./Gradient";
 export { Logo } from "./Logo";
 export { PhoneMockup } from "./PhoneMockup";
 export { Section } from "./Section";
+export { ScrollReveal } from "./ScrollReveal";
 export { SectionTitle } from "./SectionTitle";
 export { Video } from "./Video";
