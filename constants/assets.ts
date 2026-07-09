@@ -12,8 +12,13 @@ export const assets = {
     alt: "The Crypto App logo",
   },
   whoItsFor: {
-    src: "/assets/who-its-for.svg",
-    width: 894,
+    core: {
+      src: "/assets/who-its-for-core.svg",
+      width: 866,
+      height: 618,
+      alt: "",
+    },
+    width: 866,
     height: 618,
     alt: "Industry workflows connected around verified credentials",
   },
