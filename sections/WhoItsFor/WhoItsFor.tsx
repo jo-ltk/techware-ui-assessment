@@ -40,6 +40,8 @@ const ORBIT_CENTER_X = (402 / 866) * 100;
 const ORBIT_CENTER_Y = (325 / 618) * 100;
 const ORBIT_RADIUS_RATIO = 0.36;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
+// Nudge all cards horizontally without changing rotation (negative = left).
+const CARDS_OFFSET_X = -93;
 const ROTATIONS = 3;
 const FULL_ROTATION = 360 * ROTATIONS;
 const PIN_OFFSET_PX = 96;
@@ -176,9 +178,13 @@ export function WhoItsFor() {
             />
 
             <div
-              ref={orbitRef}
-              className="absolute inset-0 z-10 overflow-visible will-change-transform"
+              className="absolute inset-0 z-10 overflow-visible"
+              style={{ transform: `translateX(${CARDS_OFFSET_X}px)` }}
             >
+              <div
+                ref={orbitRef}
+                className="absolute inset-0 overflow-visible will-change-transform"
+              >
               {industries.map((industry, index) => {
                 const angle = getOrbitAngle(index);
 
@@ -205,6 +211,7 @@ export function WhoItsFor() {
                   </div>
                 );
               })}
+              </div>
             </div>
           </div>
         </div>
