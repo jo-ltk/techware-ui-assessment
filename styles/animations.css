@@ -1,1 +1,7 @@
-/* Shared animation keyframes and utilities — populated during UI implementation */
+/* Animation utilities reference design tokens — keyframes added with sections */
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-safe-transition {
+    transition: var(--transition-common);
+  }
+}
