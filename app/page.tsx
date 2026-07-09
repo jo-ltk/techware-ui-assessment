@@ -1,4 +1,4 @@
-import { Hero, Navbar } from "@/sections";
+import { Hero, Navbar, WhoItsFor } from "@/sections";
 
 export default function Home() {
   return (
@@ -6,12 +6,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <section
-          id="solution"
-          className="flex min-h-screen items-center justify-center bg-background-muted"
-        >
-          <h2 className="text-section-title">Solution</h2>
-        </section>
+        <WhoItsFor />
         <section
           id="process"
           className="flex min-h-screen items-center justify-center bg-background"
