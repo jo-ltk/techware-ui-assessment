@@ -23,6 +23,10 @@ const hero = {
     },
   },
   showcase: {
+    heading:
+      "PDFs get forged. Emails get lost. Manual checks create liability.",
+    description:
+      "Techware replaces static documents with cryptographically signed credentials issued directly from the source, with a full audit trail.",
     stats: {
       left: {
         value: "250+",
@@ -92,6 +96,15 @@ export function Hero() {
 
         <div className="relative mt-28 w-full max-w-[87.5rem] sm:mt-32 md:mt-36">
           <div className="relative aspect-[1400/1078] w-full">
+            <div className="absolute top-[48%] left-[5%] z-40 max-w-[min(90%,42rem)] text-left sm:left-[8%] sm:top-[50%] md:left-[10%] md:max-w-[42rem]">
+              <h2 className="text-feature-title font-medium text-foreground">
+                {hero.showcase.heading}
+              </h2>
+              <p className="text-body-large mt-4 max-w-[36rem] sm:mt-5">
+                {hero.showcase.description}
+              </p>
+            </div>
+
             <Image
               src={assets.heroShowcase.folderBottom.src}
               alt={assets.heroShowcase.folderBottom.alt}
