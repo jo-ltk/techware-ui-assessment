@@ -1,5 +1,6 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+---
+description: 
+alwaysApply: true
+---
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+Never add "Co-authored-by: Cursor" or any cursoragent/Cursor attribution trailer to git commits, commit messages, or pull request descriptions. Commits should be authored using the local git user config only.
