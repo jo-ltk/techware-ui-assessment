@@ -78,9 +78,9 @@
   );
 
   --gradient-primary-button: linear-gradient(
-    163.64deg,
-    var(--color-white) 29.87%,
-    var(--color-gold-600) 54.36%
+    90deg,
+    var(--color-gold-200) 0%,
+    var(--color-gold-600) 100%
   );
 
   --gradient-nav-button: linear-gradient(
@@ -167,8 +167,10 @@
   --text-stat-size: var(--font-size-2xl);
   --text-stat-tracking: var(--letter-spacing-tighter);
 
-  --text-nav-size: var(--font-size-xs);
+  --text-nav-size: 14px;
+  --text-nav-weight: var(--font-weight-regular);
   --text-nav-leading: var(--line-height-none);
+  --text-nav-tracking: 0;
 
   --text-button-size: var(--font-size-xs);
   --text-button-tracking: var(--letter-spacing-ui);
@@ -182,6 +184,15 @@
   --container-narrow: 63.75rem; /* 1020px — hero copy block */
   --container-padding-inline: 7.5rem; /* 120px */
   --container-padding-inline-sm: 1.25rem; /* 20px — mobile fallback */
+
+  /* Navbar — Figma header frame: 1200 × 59 */
+  --navbar-width: var(--container-content);
+  --navbar-height: 3.6875rem; /* 59px */
+  --navbar-height-mobile: 3.25rem; /* 52px */
+  --navbar-padding-inline: var(--space-5); /* 20px */
+  --navbar-logo-size: 2.5rem; /* 40px */
+  --navbar-logo-size-mobile: 2.25rem; /* 36px */
+  --navbar-button-height: 2.4375rem; /* 39px — fits inside 59px bar */
 
   --section-padding-block: 8.4375rem; /* 135px — platform preview offset */
   --section-gap-lg: 7.5rem; /* 120px */
