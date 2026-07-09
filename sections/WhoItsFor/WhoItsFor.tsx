@@ -11,7 +11,7 @@ const whoItsFor = {
 export function WhoItsFor() {
   return (
     <section
-      id="who-its-for"
+      id="solution"
       aria-labelledby="who-its-for-heading"
       className="relative overflow-hidden bg-background px-5 pt-20 pb-10 text-center sm:px-6 sm:pt-24 md:pt-28 lg:pb-16"
     >

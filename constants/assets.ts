@@ -17,11 +17,57 @@ export const assets = {
     height: 618,
     alt: "Industry workflows connected around verified credentials",
   },
+  platformPreview: {
+    card1: {
+      src: "/assets/card1.png",
+      width: 2250,
+      height: 1624,
+      alt: "Ion dashboard showing sales overview, pipeline charts, and deal distribution",
+    },
+    card2: {
+      src: "/assets/card2.png",
+      width: 2250,
+      height: 1624,
+      alt: "Ion dashboard showing real-time verification status tracking",
+    },
+    card3: {
+      src: "/assets/card3.png",
+      width: 2250,
+      height: 1624,
+      alt: "Ion dashboard showing issuer-verified documents",
+    },
+    card4: {
+      src: "/assets/card4.png",
+      width: 2250,
+      height: 1624,
+      alt: "Ion dashboard showing applicant approval activity",
+    },
+  },
   icons: {
     community: "/assets/icon1.svg",
     shield: "/assets/icon3.svg",
     scale: "/assets/icon4.svg",
     figure: "/assets/icon2.svg",
+  },
+  footer: {
+    linkedin: {
+      src: "/assets/linkedin.svg",
+      width: 30,
+      height: 30,
+      alt: "",
+    },
+    instagram: {
+      src: "/assets/instagram.svg",
+      width: 30,
+      height: 30,
+      alt: "",
+    },
+    mail: {
+      src: "/assets/mail.svg",
+      width: 30,
+      height: 30,
+      alt: "",
+    },
   },
   heroShowcase: {
     iphone: {
