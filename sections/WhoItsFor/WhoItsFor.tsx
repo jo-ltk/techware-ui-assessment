@@ -42,7 +42,7 @@ const ORBIT_RADIUS_RATIO = 0.36;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
 // Nudge all cards horizontally without changing rotation (negative = left).
 const CARDS_OFFSET_X = -93;
-const ROTATIONS = 3;
+const ROTATIONS = 1;
 const FULL_ROTATION = 360 * ROTATIONS;
 const PIN_OFFSET_PX = 96;
 
@@ -142,11 +142,11 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="solution"
       aria-labelledby="who-its-for-heading"
-      className="relative bg-background px-5 pt-20 pb-10 text-center sm:px-6 sm:pt-24 md:pt-28 lg:pb-16"
+      className="relative bg-background px-5 pt-10 pb-10 text-center sm:px-6 sm:pt-12 md:pt-14 lg:pb-16"
     >
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center overflow-visible"
+        className="container-content relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-start overflow-visible pt-4 sm:pt-6"
       >
         <p className="text-label inline-flex items-center justify-center gap-1 font-medium">
           <span aria-hidden className="size-1 rounded-full bg-accent" />
@@ -162,7 +162,7 @@ export function WhoItsFor() {
 
         <p className="text-body mt-4 max-w-[36rem]">{whoItsFor.description}</p>
 
-        <div className="relative mt-10 w-full max-w-[54.125rem] overflow-visible py-10 sm:mt-12 sm:py-12">
+        <div className="relative mt-6 w-full max-w-[54.125rem] overflow-visible pt-4 pb-10 sm:mt-8 sm:pt-6 sm:pb-12">
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
