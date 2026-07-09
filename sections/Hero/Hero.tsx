@@ -53,21 +53,21 @@ export function Hero() {
         style={{ backgroundImage: `url(${assets.heroGradient.src})` }}
       />
 
-      <div className="container-content relative z-10 flex flex-col items-center px-5 pt-16 pb-20 text-center sm:px-6 sm:pt-20 sm:pb-24 md:pt-24 md:pb-28 xl:px-0 xl:pt-28 xl:pb-32">
+      <div className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-20 text-center sm:px-6 sm:pt-10 sm:pb-24 md:pt-12 md:pb-28 xl:px-0 xl:pt-14 xl:pb-32">
         <h1
           id="hero-heading"
           className="text-hero max-w-[min(100%,var(--container-narrow))] text-[clamp(2.5rem,6vw+1rem,var(--text-hero-size))]"
         >
           <span className="block text-foreground">{hero.headline.line1}</span>
-          <span className="text-hero-gradient block">{hero.headline.line2}</span>
+          <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">{hero.headline.line2}</span>
         </h1>
 
-        <p className="text-body-large mt-6 max-w-[42rem] sm:mt-7 md:mt-8">
+        <p className="text-body-large mt-4 max-w-[42rem] sm:mt-5 md:mt-6">
           {hero.description}
         </p>
 
         <div
-          className="mt-8 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-7 md:mt-10"
+          className="mt-5 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-6 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-7 md:mt-7"
           role="group"
           aria-label="Hero actions"
         >
@@ -94,7 +94,7 @@ export function Hero() {
           </a>
         </div>
 
-        <div className="relative mt-28 w-full max-w-[87.5rem] sm:mt-32 md:mt-36">
+        <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
             <div className="absolute top-[48%] left-[5%] z-40 max-w-[min(90%,42rem)] text-left sm:left-[8%] sm:top-[50%] md:left-[10%] md:max-w-[42rem]">
               <h2 className="text-feature-title font-medium text-foreground">
@@ -110,7 +110,7 @@ export function Hero() {
               alt={assets.heroShowcase.folderBottom.alt}
               width={assets.heroShowcase.folderBottom.width}
               height={assets.heroShowcase.folderBottom.height}
-              className="absolute bottom-[5%] left-0 z-10 w-full"
+              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-6"
             />
 
             <Image
@@ -122,8 +122,8 @@ export function Hero() {
               className="absolute left-1/2 z-20 w-[180px] -translate-x-1/2 top-[-120px] sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
             />
 
-            <div className="absolute top-[4%] left-[10%] z-50 flex max-w-[min(52vw,11.5rem)] items-center gap-2 rounded-3xl border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg sm:left-[14%] sm:max-w-[13.5rem] sm:gap-2.5 sm:p-2.5 md:max-w-[14.5rem] md:gap-3 md:p-3">
-              <div className="flex shrink-0 -space-x-2">
+            <div className="absolute top-[-7%] left-[10%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg sm:left-[14%] sm:top-[-20%]">
+              <div className="flex w-7 shrink-0 flex-col items-center justify-center">
                 {assets.heroShowcase.avatars.map((avatar, index) => (
                   <Image
                     key={avatar.src}
@@ -131,37 +131,37 @@ export function Hero() {
                     alt={avatar.alt}
                     width={avatar.width}
                     height={avatar.height}
-                    className="size-6 rounded-full border-2 border-white object-cover sm:size-7 md:size-8"
-                    style={{ zIndex: assets.heroShowcase.avatars.length - index }}
+                    className={`relative size-7 rounded-full border-2 border-white bg-white object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] ${index > 0 ? "-mt-4" : ""}`}
+                    style={{ zIndex: index + 1 }}
                   />
                 ))}
               </div>
-              <div className="min-w-0 text-left">
-                <p className="text-stat text-xs leading-none text-foreground sm:text-sm md:text-base">
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-stat text-2xl leading-none text-foreground">
                   {hero.showcase.stats.left.value}
                 </p>
-                <p className="mt-0.5 text-[0.5625rem] leading-tight text-foreground-muted sm:mt-1 sm:text-[0.625rem] md:text-xs">
+                <p className="mt-1.5 text-sm leading-tight text-foreground-muted">
                   {hero.showcase.stats.left.label}
                 </p>
               </div>
             </div>
 
-            <div className="absolute top-[16%] right-[10%] z-50 flex max-w-[min(54vw,12rem)] items-center gap-2 rounded-3xl border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg sm:right-[14%] sm:max-w-[14rem] sm:gap-2.5 sm:p-2.5 md:max-w-[15rem] md:gap-3 md:p-3">
-              <div className="flex size-6 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30 sm:size-7 md:size-8">
+            <div className="absolute -top-[10%] right-[10%] z-50 flex max-w-[min(75vw,18rem)] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3 shadow-lg backdrop-blur-lg sm:right-[14%] sm:max-w-[20rem] sm:gap-4 sm:p-4 md:max-w-[22rem] md:gap-5 md:p-5">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30 sm:size-12 md:size-14">
                 <Image
                   src={assets.icons.shield}
                   alt=""
-                  width={16}
-                  height={16}
+                  width={24}
+                  height={24}
                   aria-hidden
-                  className="size-3 sm:size-3.5 md:size-4"
+                  className="size-5 sm:size-6 md:size-7"
                 />
               </div>
               <div className="min-w-0 text-left">
-                <p className="text-stat text-xs leading-none text-foreground sm:text-sm md:text-base">
+                <p className="text-stat text-xl leading-none text-foreground sm:text-2xl md:text-3xl">
                   {hero.showcase.stats.right.value}
                 </p>
-                <p className="mt-0.5 text-[0.5625rem] leading-tight text-foreground-muted sm:mt-1 sm:text-[0.625rem] md:text-xs">
+                <p className="mt-1.5 max-w-[12rem] text-xs leading-snug text-foreground-muted sm:mt-2 sm:text-sm md:text-base">
                   {hero.showcase.stats.right.label}
                 </p>
               </div>

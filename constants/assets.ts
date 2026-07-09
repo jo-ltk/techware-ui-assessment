@@ -95,10 +95,30 @@ export const assets = {
       alt: "",
     },
     avatars: [
-      { src: "/assets/hero-avatar-1.png", width: 80, height: 80, alt: "" },
-      { src: "/assets/hero-avatar-2.png", width: 80, height: 80, alt: "" },
-      { src: "/assets/hero-avatar-3.png", width: 80, height: 80, alt: "" },
-      { src: "/assets/hero-avatar-4.png", width: 80, height: 80, alt: "" },
+      {
+        src: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=faces",
+        width: 80,
+        height: 80,
+        alt: "Organization representative",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=80&h=80&fit=crop&crop=faces",
+        width: 80,
+        height: 80,
+        alt: "Organization representative",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=80&h=80&fit=crop&crop=faces",
+        width: 80,
+        height: 80,
+        alt: "Organization representative",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces",
+        width: 80,
+        height: 80,
+        alt: "Organization representative",
+      },
     ],
   },
 } as const;
