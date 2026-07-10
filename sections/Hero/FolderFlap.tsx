@@ -17,6 +17,17 @@ const folderFlapMaskStyle: CSSProperties = {
   maskPosition: "bottom left",
 };
 
+const folderStrokeFadeStyle: CSSProperties = {
+  WebkitMaskImage:
+    "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+  maskImage:
+    "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskSize: "100% 100%",
+  maskSize: "100% 100%",
+};
+
 export function FolderFlap() {
   return (
     <div className="absolute bottom-0 left-0 z-30 w-full translate-y-6">
@@ -38,6 +49,7 @@ export function FolderFlap() {
         viewBox="0 0 1400 1078"
         preserveAspectRatio="none"
         fill="none"
+        style={folderStrokeFadeStyle}
       >
         <path d={folderShapePath} stroke="#FFFFFF" strokeWidth={6} />
         <g transform="translate(700 539) scale(0.97429 0.9666) translate(-700 -539)">

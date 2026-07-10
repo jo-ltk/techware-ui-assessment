@@ -98,29 +98,43 @@ export function Hero() {
 
         <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[24%] left-[5%] z-40 max-w-[min(78%,46rem)] text-left sm:top-[26%] sm:left-[8%] md:left-[10%]">
-              <ScrollReveal
-                baseOpacity={0.2}
-                enableBlur={false}
-                baseRotation={0}
-                containerClassName="!m-0"
-                textClassName="font-sans text-[clamp(2rem,3.6vw+0.75rem,3.75rem)] font-medium leading-[1.05] tracking-[-0.06em] text-foreground"
-              >
-                {hero.showcase.heading}
-              </ScrollReveal>
-              <ScrollRevealWords
-                text={hero.showcase.description}
-                className="mt-5 max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted sm:mt-6"
+          <div className="absolute top-[24%] left-[5%] right-[5%] z-40 text-left sm:top-[26%] sm:left-[6%] sm:right-[6%]">
+  <ScrollReveal
+    baseOpacity={0.2}
+    enableBlur={false}
+    baseRotation={0}
+    containerClassName="!m-0"
+    textClassName="[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground"
+  >
+    {hero.showcase.heading}
+  </ScrollReveal>
+  <ScrollRevealWords
+    text={hero.showcase.description}
+    className="mt-0 [font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground-muted"
+  />
+</div>
+            <div
+              aria-hidden={false}
+              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-6"
+              style={{
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+                maskImage:
+                  "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskSize: "100% 100%",
+                maskSize: "100% 100%",
+              }}
+            >
+              <Image
+                src={assets.heroShowcase.folderBottom.src}
+                alt={assets.heroShowcase.folderBottom.alt}
+                width={assets.heroShowcase.folderBottom.width}
+                height={assets.heroShowcase.folderBottom.height}
+                className="w-full"
               />
             </div>
-
-            <Image
-              src={assets.heroShowcase.folderBottom.src}
-              alt={assets.heroShowcase.folderBottom.alt}
-              width={assets.heroShowcase.folderBottom.width}
-              height={assets.heroShowcase.folderBottom.height}
-              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-6"
-            />
 
             <Image
               src={assets.heroShowcase.iphone.src}
@@ -129,6 +143,15 @@ export function Hero() {
               height={assets.heroShowcase.iphone.height}
               priority
               className="absolute left-1/2 z-20 w-[180px] -translate-x-1/2 top-[-120px] sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
+            />
+
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 -bottom-8 z-[35] h-[48%]"
+              style={{
+                background:
+                  "linear-gradient(to bottom, transparent 0%, transparent 20%, color-mix(in srgb, var(--color-background) 70%, transparent) 55%, var(--color-background) 78%, var(--color-background) 100%)",
+              }}
             />
 
             <div className="absolute top-[-7%] left-[14%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg sm:left-[16%] sm:top-[-20%] md:left-[21%]">
