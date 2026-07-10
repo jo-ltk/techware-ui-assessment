@@ -56,9 +56,9 @@ const connect = {
 
 export function Footer() {
   return (
-    <footer className="bg-background px-5 sm:px-6">
-      <div className="container-content">
-        <div className="relative min-h-[28rem] overflow-hidden rounded-t-[var(--radius-lg)] sm:min-h-[32rem]">
+    <footer className="bg-background px-0 sm:px-6">
+      <div className="mx-auto w-full sm:w-[min(100%-(var(--container-padding-inline-sm)*2),var(--container-content))]">
+        <div className="relative min-h-[24rem] overflow-hidden rounded-none sm:min-h-[32rem] sm:rounded-t-[var(--radius-lg)]">
           <video
             className="absolute inset-0 h-full w-full object-cover"
             src="/videos/footer_video.mp4"
@@ -69,21 +69,21 @@ export function Footer() {
           />
 
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(196,88,32,0.22),transparent_55%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgb(196,88,32,0.22),transparent_55%)]"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(32,64,140,0.2),transparent_55%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgb(32,64,140,0.2),transparent_55%)]"
             aria-hidden
           />
 
-          <div className="relative z-10 flex min-h-[inherit] flex-col p-8 sm:p-10 md:p-12 lg:p-14">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
+          <div className="relative z-10 flex min-h-[inherit] flex-col p-5 sm:p-10 md:p-12 lg:p-14">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-12 md:grid-cols-4">
               <div>
                 <h3 className="text-sm font-medium text-white">
                   {footerLinks.product.title}
                 </h3>
-                <ul className="mt-5 flex flex-col gap-3">
+                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
                   {footerLinks.product.links.map((link) => (
                     <li key={link.label}>
                       <a
@@ -101,7 +101,7 @@ export function Footer() {
                 <h3 className="text-sm font-medium text-white">
                   {footerLinks.company.title}
                 </h3>
-                <ul className="mt-5 flex flex-col gap-3">
+                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
                   {footerLinks.company.links.map((link) => (
                     <li key={link.label}>
                       <a
@@ -119,7 +119,7 @@ export function Footer() {
                 <h3 className="text-sm font-medium text-white">
                   {contact.title}
                 </h3>
-                <ul className="mt-5 flex flex-col gap-3">
+                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
                   {contact.items.map((item) => (
                     <li
                       key={item.label}
@@ -136,7 +136,7 @@ export function Footer() {
                 <h3 className="text-sm font-medium text-white">
                   {connect.title}
                 </h3>
-                <div className="mt-5 flex items-center gap-3">
+                <div className="mt-4 flex items-center gap-3 sm:mt-5">
                   {connect.links.map((link) => (
                     <a
                       key={link.label}
@@ -160,7 +160,7 @@ export function Footer() {
               </div>
             </div>
 
-            <p className="mt-auto pt-16 text-right text-xs text-white/40">
+            <p className="mt-auto pt-10 text-right text-xs text-white/40 sm:pt-16">
               © 2026 Lorem.app. All rights reserved.
             </p>
           </div>

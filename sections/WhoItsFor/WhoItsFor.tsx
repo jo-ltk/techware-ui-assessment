@@ -40,8 +40,10 @@ const ORBIT_CENTER_X = (402 / 866) * 100;
 const ORBIT_CENTER_Y = (325 / 618) * 100;
 const ORBIT_RADIUS_RATIO = 0.36;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
-// Nudge all cards horizontally without changing rotation (negative = left).
-const CARDS_OFFSET_X = -93;
+// Horizontal card nudge. Negative = left, positive = right.
+const CARDS_OFFSET_X = -93; // desktop (artboard units @ 866-wide)
+const CARDS_OFFSET_X_MOBILE = -42; // mobile (pixels) — tweak this to slide left/right
+const MOBILE_OFFSET_MAX_WIDTH = 768;
 const ROTATIONS = 1;
 const FULL_ROTATION = 360 * ROTATIONS;
 const PIN_OFFSET_PX = 96;
@@ -85,8 +87,16 @@ export function WhoItsFor() {
     if (cards.length !== industries.length) return;
 
     const updateOrbitRadius = () => {
-      const radius = container.offsetWidth * ORBIT_RADIUS_RATIO;
+      const width = container.offsetWidth;
+      const radius = width * ORBIT_RADIUS_RATIO;
       container.style.setProperty("--orbit-radius", `${radius}px`);
+
+      // Mobile uses raw pixels so the nudge is visible; desktop stays artboard-scaled.
+      const offsetPx =
+        window.innerWidth < MOBILE_OFFSET_MAX_WIDTH
+          ? CARDS_OFFSET_X_MOBILE
+          : width * (CARDS_OFFSET_X / 866);
+      container.style.setProperty("--cards-offset-x", `${offsetPx}px`);
     };
 
     updateOrbitRadius();
@@ -135,34 +145,34 @@ export function WhoItsFor() {
     };
   }, [prefersReducedMotion]);
 
-  
-
   return (
     <section
       ref={sectionRef}
       id="solution"
       aria-labelledby="who-its-for-heading"
-      className="relative bg-background px-5 pt-0 pb-10 text-center sm:px-6 sm:pt-0 md:pt-2 lg:pb-16"
+      className="relative overflow-x-hidden bg-background px-4 pt-0 pb-4 text-center sm:px-5 sm:pb-10 md:px-6 md:pt-2 lg:pb-16"
     >
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-start overflow-visible pt-0 sm:pt-2"
+        className="container-content relative z-10 flex flex-col items-center justify-start overflow-visible pt-0 sm:min-h-[calc(100vh-6rem)] sm:pt-1 md:pt-2"
       >
-        <p className="text-label inline-flex items-center justify-center gap-1 font-medium">
+        <p className="text-label inline-flex items-center justify-center gap-1 text-[0.75rem] font-medium sm:text-[length:var(--text-label-size)]">
           <span aria-hidden className="size-1 rounded-full bg-accent" />
           {whoItsFor.eyebrow}
         </p>
 
         <h2
           id="who-its-for-heading"
-          className="text-section-title mt-3 max-w-[44rem] text-[clamp(2.25rem,4.8vw,var(--text-section-title-size))] text-foreground"
+          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-[1.15] tracking-[var(--text-section-title-tracking)] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] sm:leading-none md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)]"
         >
           {whoItsFor.heading}
         </h2>
 
-        <p className="text-body mt-4 max-w-[36rem]">{whoItsFor.description}</p>
+        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] leading-snug text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] sm:leading-normal md:max-w-[36rem] md:text-[length:var(--text-body-size)]">
+          {whoItsFor.description}
+        </p>
 
-        <div className="relative mt-6 w-full max-w-[54.125rem] overflow-visible pt-4 pb-10 sm:mt-8 sm:pt-6 sm:pb-12">
+        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-3 pb-2 sm:mt-6 sm:px-2 sm:pt-5 sm:pb-10 md:mt-8 md:px-0 md:pt-6 md:pb-12">
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
@@ -179,38 +189,43 @@ export function WhoItsFor() {
 
             <div
               className="absolute inset-0 z-10 overflow-visible"
-              style={{ transform: `translateX(${CARDS_OFFSET_X}px)` }}
+              style={{
+                transform: "translateX(var(--cards-offset-x, 0px))",
+              }}
             >
               <div
                 ref={orbitRef}
                 className="absolute inset-0 overflow-visible will-change-transform"
               >
-              {industries.map((industry, index) => {
-                const angle = getOrbitAngle(index);
+                {industries.map((industry, index) => {
+                  const angle = getOrbitAngle(index);
 
-                return (
-                  <div
-                    key={industry.label}
-                    className="absolute h-0 w-0 "
-                    style={{
-                      left: `${ORBIT_CENTER_X}%`,
-                      top: `${ORBIT_CENTER_Y}%`,
-                      transform: `rotate(${angle}deg) translateX(var(--orbit-radius)) rotate(${-angle}deg)`,
-                    }}
-                  >
-                    <div className="-translate-x-1/2 -translate-y-1/2">
-                      <div
-                        ref={(element) => {
-                          cardRefs.current[index] = element;
-                        }}
-                        className="will-change-transform"
-                      >
-                        <OrbitCard industry={industry} />
+                  return (
+                    <div
+                      key={industry.label}
+                      className="absolute h-0 w-0"
+                      style={{
+                        left: `${ORBIT_CENTER_X}%`,
+                        top: `${ORBIT_CENTER_Y}%`,
+                        transform: `rotate(${angle}deg) translateX(var(--orbit-radius)) rotate(${-angle}deg)`,
+                      }}
+                    >
+                      <div className="-translate-x-1/2 -translate-y-1/2">
+                        <div
+                          ref={(element) => {
+                            cardRefs.current[index] = element;
+                          }}
+                          className="will-change-transform"
+                        >
+                          {/* Scale wrapper stays outside GSAP rotate so scrub transforms aren't overwritten */}
+                          <div className="origin-center scale-[0.42] sm:scale-[0.58] md:scale-[0.72] lg:scale-100">
+                            <OrbitCard industry={industry} />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
               </div>
             </div>
           </div>
