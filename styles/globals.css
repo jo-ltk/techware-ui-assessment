@@ -204,7 +204,7 @@
 @layer utilities {
   .text-hero {
     font-family: var(--font-family-sans);
-    font-size: clamp(1.75rem, 5vw + 0.5rem, var(--text-hero-size));
+    font-size: clamp(2.375rem, 6.5vw + 0.75rem, var(--text-hero-size));
     font-weight: var(--text-hero-weight);
     line-height: var(--text-hero-leading);
     letter-spacing: var(--text-hero-tracking);

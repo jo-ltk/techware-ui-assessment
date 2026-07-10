@@ -50,8 +50,81 @@ function getScrollDistance() {
   return window.innerHeight * 1.2;
 }
 
-function isMobile() {
-  return window.innerWidth < 640;
+function MobileShowcase() {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const pinRef = useRef<HTMLDivElement | null>(null);
+  const phoneRef = useRef<HTMLDivElement | null>(null);
+  const leftCardRef = useRef<HTMLDivElement | null>(null);
+  const rightCardRef = useRef<HTMLDivElement | null>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const pin = pinRef.current;
+    const phone = phoneRef.current;
+    const leftCard = leftCardRef.current;
+    const rightCard = rightCardRef.current;
+    if (!section || !pin || !phone || !leftCard || !rightCard) return;
+
+    const movingElements = [phone, leftCard, rightCard];
+    gsap.set(phone, { xPercent: -50, y: 110, force3D: true });
+    gsap.set([leftCard, rightCard], { y: 110, force3D: true });
+    if (prefersReducedMotion) {
+      gsap.set(phone, { xPercent: -50, y: 0 });
+      gsap.set([leftCard, rightCard], { y: 0 });
+      return;
+    }
+
+    ensureScrollTriggerRegistered();
+    const ctx = gsap.context(() => {
+      const timeline = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: section,
+          start: "top top+=80",
+          end: () => `+=${getScrollDistance()}`,
+          pin,
+          pinSpacing: true,
+          scrub: 1.2,
+          invalidateOnRefresh: true,
+        },
+      });
+      // A shared tween keeps all three floating elements in formation for the
+      // full scrubbed rise while preserving their independent stacking order.
+      timeline.to(movingElements, { y: -160, ease: "power1.out", duration: 0.65 }, 0);
+      timeline.to({}, { duration: 0.35 });
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }, section);
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  return (
+    <div ref={sectionRef} className="relative mt-20 block w-full max-w-[44rem] xl:hidden">
+      <div ref={pinRef} className="relative aspect-[1/1.28] w-full overflow-hidden">
+          <div ref={phoneRef} className="absolute -top-[4%] left-1/2 z-30 w-[28.25%] will-change-transform">
+            <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="w-full" />
+          </div>
+
+        <div ref={leftCardRef} className="absolute top-[7%] left-[21%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
+          <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
+          <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.left.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.left.label}</p></div>
+        </div>
+
+        <div ref={rightCardRef} className="absolute top-[14%] right-[8%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
+          <div className="flex aspect-square w-[22%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30"><Image src={assets.icons.shield} alt="" width={24} height={24} aria-hidden className="size-[52%]" /></div>
+          <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.right.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.right.label}</p></div>
+        </div>
+
+        <div className="absolute top-[55%] left-[10%] right-[10%] z-45 text-left">
+          <ShowcaseTextReveal pinnedContainerRef={sectionRef} animationStart="center center" animationEnd="+=160%" baseOpacity={0.2} lines={[
+            { text: hero.showcase.heading, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground" },
+            { text: hero.showcase.description, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted" },
+          ]} />
+        </div>
+        <FolderFlap className="top-[25%] z-40 w-full translate-y-0" />
+      </div>
+    </div>
+  );
 }
 
 export function Hero() {
@@ -82,12 +155,15 @@ export function Hero() {
       !rightStat
     )
       return;
+    if (window.innerWidth < 1280) return;
 
     // Resting: tucked into the folder (stats stay visible).
-    const mobile = isMobile();
-    gsap.set(iphone, { xPercent: -50, y: mobile ? 60 : 110, force3D: true });
-    gsap.set(leftStat, { y: mobile ? 70 : 130, force3D: true });
-    gsap.set(rightStat, { y: mobile ? 80 : 150, force3D: true });
+    // Keep one motion path at every breakpoint. The artwork itself scales with
+    // its fluid canvas, so changing these values on smaller screens makes the
+    // phone and cards follow a different animation than desktop.
+    gsap.set(iphone, { xPercent: -50, y: 110, force3D: true });
+    gsap.set(leftStat, { y: 130, force3D: true });
+    gsap.set(rightStat, { y: 150, force3D: true });
     gsap.set(header, { y: 0, opacity: 1 });
     gsap.set(gradient, { opacity: 1 });
 
@@ -119,13 +195,11 @@ export function Hero() {
       });
 
       // Rise over most of the pin, then hold — same motion as before, smoother scrub.
-      const mobile = isMobile();
-
       tl.to(
         iphone,
         {
           xPercent: -50,
-          y: mobile ? -80 : -160,
+          y: -160,
           ease: "power1.out",
           duration: 0.65,
         },
@@ -135,7 +209,7 @@ export function Hero() {
       tl.to(
         leftStat,
         {
-          y: mobile ? -100 : -190,
+          y: -190,
           ease: "power1.out",
           duration: 0.65,
         },
@@ -145,7 +219,7 @@ export function Hero() {
       tl.to(
         rightStat,
         {
-          y: mobile ? -70 : -140,
+          y: -140,
           ease: "power1.out",
           duration: 0.65,
         },
@@ -252,9 +326,11 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative mt-24 w-full max-w-[87.5rem] pb-0 sm:mt-48 md:mt-56 lg:mt-60">
+        <MobileShowcase />
+
+        <div className="relative mt-24 hidden w-full max-w-[87.5rem] pb-0 xl:mt-60 xl:block">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[38%] left-[5%] right-[5%] z-40 text-left sm:top-[40%] sm:left-[6%] sm:right-[6%]">
+            <div className="absolute top-[40%] left-[6%] right-[6%] z-40 text-left">
               <ShowcaseTextReveal
                 pinnedContainerRef={pinRef}
                 animationStart="center center"
@@ -264,12 +340,12 @@ export function Hero() {
                   {
                     text: hero.showcase.heading,
                     className:
-                      "[font-family:var(--font-family-sans)] text-left text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] font-light leading-none tracking-[-0.03em] text-foreground",
+                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] sm:leading-none",
                   },
                   {
                     text: hero.showcase.description,
                     className:
-                      "[font-family:var(--font-family-sans)] text-left text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] font-light leading-none tracking-[-0.03em] text-foreground-muted",
+                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground-muted sm:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] sm:leading-none",
                   },
                 ]}
               />

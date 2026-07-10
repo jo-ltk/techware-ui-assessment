@@ -30,9 +30,16 @@ const folderStrokeFadeStyle: CSSProperties = {
   maskSize: "100% 100%",
 };
 
-export function FolderFlap() {
+type FolderFlapProps = {
+  /** Optional placement override for breakpoint-specific compositions. */
+  className?: string;
+};
+
+export function FolderFlap({ className }: FolderFlapProps) {
   return (
-    <div className="absolute bottom-0 left-0 z-30 w-full translate-y-12">
+    <div
+      className={`absolute left-0 z-30 w-full ${className ?? "bottom-0 translate-y-12"}`}
+    >
       {/* Fade only the fill image — blur + SVG strokes stay untouched */}
       <Image
         src={assets.heroShowcase.folderTop.src}
