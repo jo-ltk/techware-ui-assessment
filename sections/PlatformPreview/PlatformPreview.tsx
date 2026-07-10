@@ -96,7 +96,7 @@ export function PlatformPreview() {
     <section
       id="platform-preview"
       aria-labelledby="platform-preview-heading"
-      className="overflow-x-hidden bg-background px-4 py-10 sm:px-5 sm:py-16 md:px-6 md:py-24 lg:py-28"
+      className="overflow-x-hidden bg-background px-4 pt-6 pb-14 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:pt-12 lg:pb-12"
     >
       <div className="container-content">
         <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">

@@ -150,11 +150,11 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="solution"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-hidden bg-background px-4 pt-0 pb-4 text-center sm:px-5 sm:pb-10 md:px-6 md:pt-2 lg:pb-16"
+      className="relative overflow-x-hidden bg-background px-4 pt-0 pb-4 text-center sm:px-5 sm:pb-6 md:px-6 md:pt-2 md:pb-8"
     >
       <div
         ref={pinRef}
-        className="relative z-10 flex min-h-0 flex-col items-center justify-start overflow-visible pt-0 sm:min-h-[calc(100vh-6rem)] sm:pt-1 md:pt-2"
+        className="relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center overflow-visible pt-0 sm:pt-1 md:pt-2"
       >
         <div
           aria-hidden
@@ -186,7 +186,7 @@ export function WhoItsFor() {
           {whoItsFor.description}
         </p>
 
-        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-3 pb-2 sm:mt-6 sm:px-2 sm:pt-5 sm:pb-10 md:mt-8 md:px-0 md:pt-6 md:pb-12">
+        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-3 pb-2 sm:mt-6 sm:px-2 sm:pt-5 sm:pb-4 md:mt-8 md:px-0 md:pt-6 md:pb-6">
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
