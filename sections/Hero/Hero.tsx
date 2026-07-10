@@ -6,12 +6,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Play } from "lucide-react";
 import { useLayoutEffect, useRef } from "react";
 
-import { ScrollReveal } from "@/components/ScrollReveal";
-import { ScrollRevealWords } from "@/components/ScrollRevealWords";
 import { assets } from "@/constants";
 import { useReducedMotion } from "@/hooks";
 
 import { FolderFlap } from "./FolderFlap";
+import { ShowcaseTextReveal } from "./ShowcaseTextReveal";
 
 const hero = {
   headline: {
@@ -48,7 +47,7 @@ function ensureScrollTriggerRegistered() {
 }
 
 function getScrollDistance() {
-  return window.innerHeight * 1.1;
+  return window.innerHeight * 1.2;
 }
 
 export function Hero() {
@@ -69,7 +68,7 @@ export function Hero() {
     const rightStat = rightStatRef.current;
     if (!section || !pin || !header || !iphone || !leftStat || !rightStat) return;
 
-    // Resting: tucked into the folder.
+    // Resting: tucked into the folder (stats stay visible).
     gsap.set(iphone, { xPercent: -50, y: 110, force3D: true });
     gsap.set(leftStat, { y: 130, force3D: true });
     gsap.set(rightStat, { y: 150, force3D: true });
@@ -84,34 +83,73 @@ export function Hero() {
     ensureScrollTriggerRegistered();
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: section,
-        start: `top top+=${PIN_OFFSET_PX}`,
-        end: () => `+=${getScrollDistance()}`,
-        pin: pin,
-        pinSpacing: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const progress = self.progress;
-
-          // Rise happens over the first 60% of pinned scroll, then holds.
-          const riseProgress = Math.min(progress / 0.6, 1);
-
-          gsap.set(iphone, { y: 110 + (-160 - 110) * riseProgress, xPercent: -50 });
-          gsap.set(leftStat, { y: 130 + (-190 - 130) * riseProgress });
-          gsap.set(rightStat, { y: 150 + (-140 - 150) * riseProgress });
-
-          // Clear space for the rising phone
-          gsap.set(header, {
-            y: -60 * riseProgress,
-            opacity: 1 - riseProgress,
-            pointerEvents: riseProgress > 0.9 ? "none" : "auto",
-          });
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: section,
+          start: `top top+=${PIN_OFFSET_PX}`,
+          end: () => `+=${getScrollDistance()}`,
+          pin: pin,
+          pinSpacing: true,
+          scrub: 1.2,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            header.style.pointerEvents =
+              self.progress > 0.55 ? "none" : "auto";
+          },
         },
       });
 
-      ScrollTrigger.refresh();
+      // Rise over most of the pin, then hold — same motion as before, smoother scrub.
+      tl.to(
+        iphone,
+        {
+          xPercent: -50,
+          y: -160,
+          ease: "power1.out",
+          duration: 0.65,
+        },
+        0,
+      );
+
+      tl.to(
+        leftStat,
+        {
+          y: -190,
+          ease: "power1.out",
+          duration: 0.65,
+        },
+        0,
+      );
+
+      tl.to(
+        rightStat,
+        {
+          y: -140,
+          ease: "power1.out",
+          duration: 0.65,
+        },
+        0,
+      );
+
+      tl.to(
+        header,
+        {
+          y: -60,
+          opacity: 0,
+          ease: "power1.in",
+          duration: 0.55,
+        },
+        0,
+      );
+
+      // Hold the composed frame before unpinning.
+      tl.to({}, { duration: 0.35 });
+
+      // Nested text reveals depend on this pin — refresh after it's live.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
     }, section);
 
     return () => {
@@ -124,7 +162,7 @@ export function Hero() {
       ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative overflow-hidden bg-background"
+      className="relative overflow-x-hidden bg-background"
     >
       <div
         aria-hidden
@@ -134,7 +172,7 @@ export function Hero() {
 
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-20 text-center sm:px-6 sm:pt-10 sm:pb-24 md:pt-12 md:pb-28 xl:px-0 xl:pt-14 xl:pb-32"
+        className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-2 text-center sm:px-6 sm:pt-10 sm:pb-3 md:pt-12 md:pb-4 xl:px-0 xl:pt-14 xl:pb-4"
       >
         <div ref={headerRef} className="flex flex-col items-center">
           <h1
@@ -174,30 +212,37 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
+        <div className="relative mt-40 w-full max-w-[87.5rem] pb-0 sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[24%] left-[5%] right-[5%] z-40 text-left sm:top-[26%] sm:left-[6%] sm:right-[6%]">
-              <ScrollReveal
+            <div className="absolute top-[38%] left-[5%] right-[5%] z-40 text-left sm:top-[40%] sm:left-[6%] sm:right-[6%]">
+              <ShowcaseTextReveal
+                pinnedContainerRef={pinRef}
+                animationStart="center center"
+                animationEnd="+=160%"
                 baseOpacity={0.2}
-                enableBlur={false}
-                baseRotation={0}
-                containerClassName="!m-0"
-                textClassName="[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground"
-              >
-                {hero.showcase.heading}
-              </ScrollReveal>
-              <ScrollRevealWords
-                text={hero.showcase.description}
-                className="mt-0 [font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground-muted"
+                lines={[
+                  {
+                    text: hero.showcase.heading,
+                    className:
+                      "[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground",
+                  },
+                  {
+                    text: hero.showcase.description,
+                    className:
+                      "[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground-muted",
+                  },
+                ]}
               />
             </div>
 
             <div
               aria-hidden={false}
-              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-6"
+              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-12"
               style={{
-                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
-                maskImage: "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+                WebkitMaskImage:
+                  "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
+                maskImage:
+                  "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
                 WebkitMaskRepeat: "no-repeat",
                 maskRepeat: "no-repeat",
                 WebkitMaskSize: "100% 100%",
@@ -212,15 +257,6 @@ export function Hero() {
                 className="w-full"
               />
             </div>
-
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 -bottom-8 z-[35] h-[48%]"
-              style={{
-                background:
-                  "linear-gradient(to bottom, transparent 0%, transparent 20%, color-mix(in srgb, var(--color-background) 70%, transparent) 55%, var(--color-background) 78%, var(--color-background) 100%)",
-              }}
-            />
 
             <div
               ref={iphoneRef}
@@ -289,6 +325,16 @@ export function Hero() {
 
             <FolderFlap />
           </div>
+
+          {/* Bottom dissolve — sits above the folder edge, below the copy */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 -bottom-2 z-[45] h-36 sm:h-40 md:h-44"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 55%, transparent) 42%, var(--color-background) 72%, var(--color-background) 100%)",
+            }}
+          />
         </div>
       </div>
     </section>

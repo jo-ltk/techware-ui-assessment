@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import { wordRevealOpacity } from "@/lib/motion";
 
 import "./ScrollReveal.css";
 
@@ -18,125 +20,144 @@ function ensureScrollTriggerRegistered() {
 type ScrollRevealProps = {
   children: React.ReactNode;
   scrollContainerRef?: React.RefObject<HTMLElement | null>;
+  /** Parent pin element — required when this text lives inside a pinned hero. */
+  pinnedContainerRef?: React.RefObject<HTMLElement | null>;
+  /** Optional shared trigger (e.g. the whole showcase text block). */
+  triggerRef?: React.RefObject<HTMLElement | null>;
   enableBlur?: boolean;
   baseOpacity?: number;
   baseRotation?: number;
   blurStrength?: number;
   containerClassName?: string;
   textClassName?: string;
+  rotationStart?: string;
   rotationEnd?: string;
+  wordAnimationStart?: string;
   wordAnimationEnd?: string;
   as?: "h2" | "div" | "p";
 };
 
 export function ScrollReveal({
   children,
-  scrollContainerRef,
-  enableBlur = true,
-  baseOpacity = 0.1,
-  baseRotation = 3,
+  pinnedContainerRef,
+  triggerRef,
+  enableBlur = false,
+  baseOpacity = 0.12,
+  baseRotation = 0,
   blurStrength = 4,
   containerClassName = "",
   textClassName = "",
-  rotationEnd = "bottom bottom",
-  wordAnimationEnd = "bottom bottom",
+  wordAnimationStart = "center center",
+  wordAnimationEnd = "+=160%",
   as: ContainerTag = "h2",
 }: ScrollRevealProps) {
   const containerRef = useRef<HTMLHeadingElement | HTMLDivElement | HTMLParagraphElement>(null);
+  const wordEls = useRef<(HTMLSpanElement | null)[]>([]);
 
-  const splitText = useMemo(() => {
+  const words = useMemo(() => {
     const text = typeof children === "string" ? children : "";
-    return text.split(/(\s+)/).map((word, index) => {
-      if (word.match(/^\s+$/)) return word;
-      return (
-        <span className="word" key={index} style={{ opacity: baseOpacity }}>
-          {word}
-        </span>
-      );
-    });
-  }, [children, baseOpacity]);
+    return text.split(/(\s+)/).filter((part) => part.length > 0);
+  }, [children]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     ensureScrollTriggerRegistered();
 
-    const scroller =
-      scrollContainerRef && scrollContainerRef.current
-        ? scrollContainerRef.current
-        : window;
+    const wordNodes = wordEls.current.filter(
+      (node): node is HTMLSpanElement => node !== null && !node.dataset.space,
+    );
+
+    const applyProgress = (progress: number) => {
+      const total = wordNodes.length;
+      for (let i = 0; i < total; i++) {
+        const opacity = wordRevealOpacity(progress, i, total);
+        // Remap from 0.12..1 into baseOpacity..1
+        const mapped =
+          baseOpacity +
+          ((opacity - 0.12) / 0.88) * (1 - baseOpacity);
+        wordNodes[i].style.opacity = String(mapped);
+        if (enableBlur) {
+          const blur = (1 - mapped) * blurStrength;
+          wordNodes[i].style.filter =
+            blur > 0.05 ? `blur(${blur}px)` : "none";
+        }
+      }
+    };
+
+    applyProgress(0);
+
+    if (baseRotation !== 0) {
+      gsap.set(el, { transformOrigin: "0% 50%", rotate: baseRotation });
+    }
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        el,
-        { transformOrigin: "0% 50%", rotate: baseRotation },
-        {
-          ease: "none",
-          rotate: 0,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: "top bottom",
-            end: rotationEnd,
-            scrub: true,
-          },
+      ScrollTrigger.create({
+        trigger: triggerRef?.current ?? el,
+        start: wordAnimationStart,
+        end: wordAnimationEnd,
+        scrub: 1.3,
+        pinnedContainer: pinnedContainerRef?.current ?? undefined,
+        onUpdate: (self) => {
+          applyProgress(self.progress);
+          if (baseRotation !== 0) {
+            gsap.set(el, { rotate: baseRotation * (1 - self.progress) });
+          }
         },
-      );
+      });
 
-      const wordElements = el.querySelectorAll(".word");
-
-      gsap.fromTo(
-        wordElements,
-        { opacity: baseOpacity, willChange: "opacity" },
-        {
-          ease: "none",
-          opacity: 1,
-          stagger: 0.05,
-          scrollTrigger: {
-            trigger: el,
-            scroller,
-            start: "top bottom-=20%",
-            end: wordAnimationEnd,
-            scrub: true,
-          },
-        },
-      );
-
-      if (enableBlur) {
-        gsap.fromTo(
-          wordElements,
-          { filter: `blur(${blurStrength}px)` },
-          {
-            ease: "none",
-            filter: "blur(0px)",
-            stagger: 0.05,
-            scrollTrigger: {
-              trigger: el,
-              scroller,
-              start: "top bottom-=20%",
-              end: wordAnimationEnd,
-              scrub: true,
-            },
-          },
-        );
-      }
+      ScrollTrigger.refresh();
     }, el);
 
     return () => ctx.revert();
   }, [
-    scrollContainerRef,
-    enableBlur,
-    baseRotation,
     baseOpacity,
-    rotationEnd,
-    wordAnimationEnd,
+    baseRotation,
     blurStrength,
+    enableBlur,
+    pinnedContainerRef,
+    triggerRef,
+    wordAnimationEnd,
+    wordAnimationStart,
+    words,
   ]);
 
   return (
-    <ContainerTag ref={containerRef} className={`scroll-reveal ${containerClassName}`}>
-      <span className={`scroll-reveal-text ${textClassName}`}>{splitText}</span>
+    <ContainerTag
+      ref={containerRef}
+      className={`scroll-reveal ${containerClassName}`}
+    >
+      <span className={`scroll-reveal-text ${textClassName}`}>
+        {words.map((part, index) => {
+          const isSpace = /^\s+$/.test(part);
+          if (isSpace) {
+            return (
+              <span
+                key={`space-${index}`}
+                ref={(node) => {
+                  wordEls.current[index] = node;
+                }}
+                data-space="true"
+              >
+                {part}
+              </span>
+            );
+          }
+          return (
+            <span
+              key={`word-${index}`}
+              ref={(node) => {
+                wordEls.current[index] = node;
+              }}
+              className="word"
+              style={{ opacity: baseOpacity }}
+            >
+              {part}
+            </span>
+          );
+        })}
+      </span>
     </ContainerTag>
   );
 }

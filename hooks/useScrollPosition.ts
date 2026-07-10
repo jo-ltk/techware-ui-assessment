@@ -5,7 +5,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const SCROLL_THRESHOLD = 1;
 
 export function useScrollPosition(): boolean {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(() =>
+    typeof window !== "undefined" ? window.scrollY > SCROLL_THRESHOLD : false,
+  );
   const frameRef = useRef<number | null>(null);
 
   const readScrollState = useCallback(() => {
@@ -24,7 +26,6 @@ export function useScrollPosition(): boolean {
   }, [readScrollState]);
 
   useEffect(() => {
-    readScrollState();
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
@@ -34,7 +35,7 @@ export function useScrollPosition(): boolean {
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [handleScroll, readScrollState]);
+  }, [handleScroll]);
 
   return isScrolled;
 }

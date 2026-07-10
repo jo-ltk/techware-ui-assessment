@@ -142,11 +142,11 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="solution"
       aria-labelledby="who-its-for-heading"
-      className="relative bg-background px-5 pt-10 pb-10 text-center sm:px-6 sm:pt-12 md:pt-14 lg:pb-16"
+      className="relative bg-background px-5 pt-0 pb-10 text-center sm:px-6 sm:pt-0 md:pt-2 lg:pb-16"
     >
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-start overflow-visible pt-4 sm:pt-6"
+        className="container-content relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-start overflow-visible pt-0 sm:pt-2"
       >
         <p className="text-label inline-flex items-center justify-center gap-1 font-medium">
           <span aria-hidden className="size-1 rounded-full bg-accent" />
