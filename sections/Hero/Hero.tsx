@@ -161,9 +161,9 @@ export function Hero() {
     // Keep one motion path at every breakpoint. The artwork itself scales with
     // its fluid canvas, so changing these values on smaller screens makes the
     // phone and cards follow a different animation than desktop.
-    gsap.set(iphone, { xPercent: -50, y: 110, force3D: true });
-    gsap.set(leftStat, { y: 130, force3D: true });
-    gsap.set(rightStat, { y: 150, force3D: true });
+    gsap.set(iphone, { xPercent: -50, y: 50, force3D: true });
+    gsap.set(leftStat, { y: 70, force3D: true });
+    gsap.set(rightStat, { y: 90, force3D: true });
     gsap.set(header, { y: 0, opacity: 1 });
     gsap.set(gradient, { opacity: 1 });
 
@@ -328,9 +328,9 @@ export function Hero() {
 
         <MobileShowcase />
 
-        <div className="relative mt-24 hidden w-full max-w-[87.5rem] pb-0 xl:mt-60 xl:block">
+        <div className="relative mt-24 hidden w-full max-w-[87.5rem] pb-0 xl:mt-40 xl:block">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[40%] left-[6%] right-[6%] z-40 text-left">
+            <div className="absolute top-[36%] left-[6%] right-[6%] z-40 text-left">
               <ShowcaseTextReveal
                 pinnedContainerRef={pinRef}
                 animationStart="center center"
@@ -352,8 +352,8 @@ export function Hero() {
             </div>
 
             <div
-              aria-hidden={false}
-              className="absolute bottom-[5%] left-0 z-10 w-full translate-y-12"
+              aria-hidden
+              className="pointer-events-none absolute bottom-[5%] left-0 z-10 hidden w-full translate-y-12"
               style={{
                 WebkitMaskImage:
                   "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
@@ -439,16 +439,16 @@ export function Hero() {
               </div>
             </div>
 
-            <FolderFlap />
+            <FolderFlap className="bottom-0 z-30 w-full translate-y-12" />
           </div>
 
-          {/* Bottom dissolve — sits above the folder edge, below the copy */}
+          {/* Bottom dissolve — covers the folder overhang (translate-y-12) into the page */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 -bottom-2 z-[45] h-36 sm:h-40 md:h-44"
+            className="pointer-events-none absolute inset-x-0 -bottom-20 z-[45] h-56 sm:h-60 md:h-64"
             style={{
               background:
-                "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 55%, transparent) 42%, var(--color-background) 72%, var(--color-background) 100%)",
+                "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 35%, transparent) 28%, color-mix(in srgb, var(--color-background) 80%, transparent) 55%, var(--color-background) 82%, var(--color-background) 100%)",
             }}
           />
         </div>

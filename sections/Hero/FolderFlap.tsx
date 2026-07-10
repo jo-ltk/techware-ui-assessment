@@ -15,9 +15,9 @@ const solidFolderMask = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1078"><path fill="white" d="${folderShapePath}"/></svg>`,
 )}")`;
 
-/** Opaque through the phone-overlap band; dissolve only at the very bottom. */
+/** Opaque through the phone-overlap band; soft dissolve into the page at the bottom. */
 const bottomDissolve =
-  "linear-gradient(to bottom, black 0%, black 70%, transparent 92%)";
+  "linear-gradient(to bottom, black 0%, black 52%, transparent 82%)";
 
 /** Folder silhouette ∩ bottom dissolve — occlusion + glass share this. */
 const folderOcclusionMaskStyle: CSSProperties = {
