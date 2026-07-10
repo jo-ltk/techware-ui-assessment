@@ -58,6 +58,7 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const pinRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLDivElement | null>(null);
+  const gradientRef = useRef<HTMLDivElement | null>(null);
   const iphoneRef = useRef<HTMLDivElement | null>(null);
   const leftStatRef = useRef<HTMLDivElement | null>(null);
   const rightStatRef = useRef<HTMLDivElement | null>(null);
@@ -67,10 +68,20 @@ export function Hero() {
     const section = sectionRef.current;
     const pin = pinRef.current;
     const header = headerRef.current;
+    const gradient = gradientRef.current;
     const iphone = iphoneRef.current;
     const leftStat = leftStatRef.current;
     const rightStat = rightStatRef.current;
-    if (!section || !pin || !header || !iphone || !leftStat || !rightStat) return;
+    if (
+      !section ||
+      !pin ||
+      !header ||
+      !gradient ||
+      !iphone ||
+      !leftStat ||
+      !rightStat
+    )
+      return;
 
     // Resting: tucked into the folder (stats stay visible).
     const mobile = isMobile();
@@ -78,10 +89,12 @@ export function Hero() {
     gsap.set(leftStat, { y: mobile ? 70 : 130, force3D: true });
     gsap.set(rightStat, { y: mobile ? 80 : 150, force3D: true });
     gsap.set(header, { y: 0, opacity: 1 });
+    gsap.set(gradient, { opacity: 1 });
 
     if (prefersReducedMotion) {
       gsap.set(iphone, { xPercent: -50, y: 0 });
       gsap.set([leftStat, rightStat], { y: 0 });
+      gsap.set(gradient, { opacity: 0 });
       return;
     }
 
@@ -150,6 +163,17 @@ export function Hero() {
         0,
       );
 
+      // Fade the glow out as the folder comes into focus.
+      tl.to(
+        gradient,
+        {
+          opacity: 0,
+          ease: "power1.in",
+          duration: 0.45,
+        },
+        0.1,
+      );
+
       // Hold the composed frame before unpinning.
       tl.to({}, { duration: 0.35 });
 
@@ -172,10 +196,19 @@ export function Hero() {
       className="relative overflow-x-hidden bg-background"
     >
       <div
+        ref={gradientRef}
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 z-0 w-[min(72vw,32rem)] bg-[length:100%_100%] bg-[position:right_center] bg-no-repeat mix-blend-screen sm:w-[min(62vw,38rem)] lg:w-[min(50vw,44rem)]"
-        style={{ backgroundImage: `url(${assets.heroGradient.src})` }}
-      />
+        className="pointer-events-none absolute top-0 right-0 z-[1] w-[min(62vw,22rem)] sm:w-[min(48vw,28rem)] md:w-[min(40vw,32rem)]"
+      >
+        <Image
+          src={assets.heroGradient.src}
+          alt=""
+          width={assets.heroGradient.width}
+          height={assets.heroGradient.height}
+          priority
+          className="h-auto w-full mix-blend-screen"
+        />
+      </div>
 
       <div
         ref={pinRef}

@@ -12,6 +12,12 @@ export const assets = {
     alt: "The Crypto App logo",
   },
   whoItsFor: {
+    gradient: {
+      src: "/assets/who-its-for-gradient.png",
+      width: 1233,
+      height: 2352,
+      alt: "",
+    },
     core: {
       src: "/assets/who-its-for-core.svg",
       width: 866,

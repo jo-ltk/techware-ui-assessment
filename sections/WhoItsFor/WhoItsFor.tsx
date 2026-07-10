@@ -154,8 +154,22 @@ export function WhoItsFor() {
     >
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex flex-col items-center justify-start overflow-visible pt-0 sm:min-h-[calc(100vh-6rem)] sm:pt-1 md:pt-2"
+        className="relative z-10 flex min-h-0 flex-col items-center justify-start overflow-visible pt-0 sm:min-h-[calc(100vh-6rem)] sm:pt-1 md:pt-2"
       >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 -left-4 z-[1] w-[min(62vw,22rem)] sm:-left-5 sm:w-[min(48vw,28rem)] md:-left-6 md:w-[min(40vw,32rem)]"
+        >
+          <Image
+            src={assets.whoItsFor.gradient.src}
+            alt=""
+            width={assets.whoItsFor.gradient.width}
+            height={assets.whoItsFor.gradient.height}
+            className="h-auto w-full mix-blend-screen"
+          />
+        </div>
+
+        <div className="container-content relative z-10 flex flex-col items-center">
         <p className="text-label inline-flex items-center justify-center gap-1 text-[0.75rem] font-medium sm:text-[length:var(--text-label-size)]">
           <span aria-hidden className="size-1 rounded-full bg-accent" />
           {whoItsFor.eyebrow}
@@ -232,6 +246,7 @@ export function WhoItsFor() {
         </div>
 
         <p className="sr-only">{assets.whoItsFor.alt}</p>
+        </div>
       </div>
     </section>
   );
