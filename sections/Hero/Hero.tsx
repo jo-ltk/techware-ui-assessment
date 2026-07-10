@@ -1,9 +1,15 @@
+"use client";
+
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Play } from "lucide-react";
+import { useLayoutEffect, useRef } from "react";
 
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ScrollRevealWords } from "@/components/ScrollRevealWords";
 import { assets } from "@/constants";
+import { useReducedMotion } from "@/hooks";
 
 import { FolderFlap } from "./FolderFlap";
 
@@ -15,14 +21,8 @@ const hero = {
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   ctas: {
-    primary: {
-      label: "Book a Demo",
-      href: "#contact",
-    },
-    secondary: {
-      label: "See how it works",
-      href: "#process",
-    },
+    primary: { label: "Book a Demo", href: "#contact" },
+    secondary: { label: "See how it works", href: "#process" },
   },
   showcase: {
     heading:
@@ -30,21 +30,98 @@ const hero = {
     description:
       "Techware replaces static documents with cryptographically signed credentials issued directly from the source, with a full audit trail.",
     stats: {
-      left: {
-        value: "250+",
-        label: "trusted organizations",
-      },
-      right: {
-        value: "10,000+",
-        label: "credentials verified securely",
-      },
+      left: { value: "250+", label: "trusted organizations" },
+      right: { value: "10,000+", label: "credentials verified securely" },
     },
   },
 } as const;
 
+const PIN_OFFSET_PX = 80;
+
+let scrollTriggerRegistered = false;
+
+function ensureScrollTriggerRegistered() {
+  if (!scrollTriggerRegistered) {
+    gsap.registerPlugin(ScrollTrigger);
+    scrollTriggerRegistered = true;
+  }
+}
+
+function getScrollDistance() {
+  return window.innerHeight * 1.1;
+}
+
 export function Hero() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const pinRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const iphoneRef = useRef<HTMLDivElement | null>(null);
+  const leftStatRef = useRef<HTMLDivElement | null>(null);
+  const rightStatRef = useRef<HTMLDivElement | null>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const pin = pinRef.current;
+    const header = headerRef.current;
+    const iphone = iphoneRef.current;
+    const leftStat = leftStatRef.current;
+    const rightStat = rightStatRef.current;
+    if (!section || !pin || !header || !iphone || !leftStat || !rightStat) return;
+
+    // Resting: tucked into the folder.
+    gsap.set(iphone, { xPercent: -50, y: 110, force3D: true });
+    gsap.set(leftStat, { y: 130, force3D: true });
+    gsap.set(rightStat, { y: 150, force3D: true });
+    gsap.set(header, { y: 0, opacity: 1 });
+
+    if (prefersReducedMotion) {
+      gsap.set(iphone, { xPercent: -50, y: 0 });
+      gsap.set([leftStat, rightStat], { y: 0 });
+      return;
+    }
+
+    ensureScrollTriggerRegistered();
+
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: section,
+        start: `top top+=${PIN_OFFSET_PX}`,
+        end: () => `+=${getScrollDistance()}`,
+        pin: pin,
+        pinSpacing: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+
+          // Rise happens over the first 60% of pinned scroll, then holds.
+          const riseProgress = Math.min(progress / 0.6, 1);
+
+          gsap.set(iphone, { y: 110 + (-160 - 110) * riseProgress, xPercent: -50 });
+          gsap.set(leftStat, { y: 130 + (-190 - 130) * riseProgress });
+          gsap.set(rightStat, { y: 150 + (-140 - 150) * riseProgress });
+
+          // Clear space for the rising phone
+          gsap.set(header, {
+            y: -60 * riseProgress,
+            opacity: 1 - riseProgress,
+            pointerEvents: riseProgress > 0.9 ? "none" : "auto",
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, section);
+
+    return () => {
+      ctx.revert();
+    };
+  }, [prefersReducedMotion]);
+
   return (
     <section
+      ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
       className="relative overflow-hidden bg-background"
@@ -55,72 +132,72 @@ export function Hero() {
         style={{ backgroundImage: `url(${assets.heroGradient.src})` }}
       />
 
-      <div className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-20 text-center sm:px-6 sm:pt-10 sm:pb-24 md:pt-12 md:pb-28 xl:px-0 xl:pt-14 xl:pb-32">
-        <h1
-          id="hero-heading"
-          className="text-hero max-w-[min(100%,var(--container-narrow))] text-[clamp(2.5rem,6vw+1rem,var(--text-hero-size))]"
-        >
-          <span className="block text-foreground">{hero.headline.line1}</span>
-          <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">{hero.headline.line2}</span>
-        </h1>
-
-        <p className="text-body-large mt-4 max-w-[42rem] sm:mt-5 md:mt-6">
-          {hero.description}
-        </p>
-
-        <div
-          className="mt-5 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-6 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-7 md:mt-7"
-          role="group"
-          aria-label="Hero actions"
-        >
-          <a
-            href={hero.ctas.primary.href}
-            className="text-button inline-flex h-[3.25rem] w-full items-center justify-between gap-4 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-5 pr-1.5 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:w-auto sm:min-w-[12.75rem] sm:pl-6"
+      <div
+        ref={pinRef}
+        className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-20 text-center sm:px-6 sm:pt-10 sm:pb-24 md:pt-12 md:pb-28 xl:px-0 xl:pt-14 xl:pb-32"
+      >
+        <div ref={headerRef} className="flex flex-col items-center">
+          <h1
+            id="hero-heading"
+            className="text-hero max-w-[min(100%,var(--container-narrow))] text-[clamp(2.5rem,6vw+1rem,var(--text-hero-size))]"
           >
-            <span>{hero.ctas.primary.label}</span>
-            <span className="inline-flex size-[2.375rem] shrink-0 items-center justify-center rounded-full bg-black/20">
-              <Play
-                aria-hidden
-                className="size-3 fill-foreground-inverse text-foreground-inverse"
-                strokeWidth={0}
-              />
-            </span>
-          </a>
+            <span className="block text-foreground">{hero.headline.line1}</span>
+            <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">{hero.headline.line2}</span>
+          </h1>
 
-          <a
-            href={hero.ctas.secondary.href}
-            className="text-button inline-flex h-[3.25rem] w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background-elevated px-5 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:w-auto sm:px-6"
+          <p className="text-body-large mt-4 max-w-[42rem] sm:mt-5 md:mt-6">
+            {hero.description}
+          </p>
+
+          <div
+            className="mt-5 flex w-full max-w-md flex-col items-stretch gap-3 sm:mt-6 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-7 md:mt-7"
+            role="group"
+            aria-label="Hero actions"
           >
-            {hero.ctas.secondary.label}
-            <ArrowUpRight aria-hidden className="size-3.5 shrink-0" strokeWidth={2.25} />
-          </a>
+            <a
+              href={hero.ctas.primary.href}
+              className="text-button inline-flex h-[3.25rem] w-full items-center justify-between gap-4 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-5 pr-1.5 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:w-auto sm:min-w-[12.75rem] sm:pl-6"
+            >
+              <span>{hero.ctas.primary.label}</span>
+              <span className="inline-flex size-[2.375rem] shrink-0 items-center justify-center rounded-full bg-black/20">
+                <Play aria-hidden className="size-3 fill-foreground-inverse text-foreground-inverse" strokeWidth={0} />
+              </span>
+            </a>
+
+            <a
+              href={hero.ctas.secondary.href}
+              className="text-button inline-flex h-[3.25rem] w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background-elevated px-5 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:w-auto sm:px-6"
+            >
+              {hero.ctas.secondary.label}
+              <ArrowUpRight aria-hidden className="size-3.5 shrink-0" strokeWidth={2.25} />
+            </a>
+          </div>
         </div>
 
         <div className="relative mt-40 w-full max-w-[87.5rem] sm:mt-48 md:mt-56 lg:mt-60">
           <div className="relative aspect-[1400/1078] w-full">
-          <div className="absolute top-[24%] left-[5%] right-[5%] z-40 text-left sm:top-[26%] sm:left-[6%] sm:right-[6%]">
-  <ScrollReveal
-    baseOpacity={0.2}
-    enableBlur={false}
-    baseRotation={0}
-    containerClassName="!m-0"
-    textClassName="[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground"
-  >
-    {hero.showcase.heading}
-  </ScrollReveal>
-  <ScrollRevealWords
-    text={hero.showcase.description}
-    className="mt-0 [font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground-muted"
-  />
-</div>
+            <div className="absolute top-[24%] left-[5%] right-[5%] z-40 text-left sm:top-[26%] sm:left-[6%] sm:right-[6%]">
+              <ScrollReveal
+                baseOpacity={0.2}
+                enableBlur={false}
+                baseRotation={0}
+                containerClassName="!m-0"
+                textClassName="[font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground"
+              >
+                {hero.showcase.heading}
+              </ScrollReveal>
+              <ScrollRevealWords
+                text={hero.showcase.description}
+                className="mt-0 [font-family:var(--font-family-sans)] text-left text-[length:var(--font-size-4xl)] font-light leading-none tracking-[-0.03em] text-foreground-muted"
+              />
+            </div>
+
             <div
               aria-hidden={false}
               className="absolute bottom-[5%] left-0 z-10 w-full translate-y-6"
               style={{
-                WebkitMaskImage:
-                  "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
-                maskImage:
-                  "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+                WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
+                maskImage: "linear-gradient(to bottom, black 0%, black 40%, transparent 70%)",
                 WebkitMaskRepeat: "no-repeat",
                 maskRepeat: "no-repeat",
                 WebkitMaskSize: "100% 100%",
@@ -136,15 +213,6 @@ export function Hero() {
               />
             </div>
 
-            <Image
-              src={assets.heroShowcase.iphone.src}
-              alt={assets.heroShowcase.iphone.alt}
-              width={assets.heroShowcase.iphone.width}
-              height={assets.heroShowcase.iphone.height}
-              priority
-              className="absolute left-1/2 z-20 w-[180px] -translate-x-1/2 top-[-120px] sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
-            />
-
             <div
               aria-hidden
               className="pointer-events-none absolute inset-x-0 -bottom-8 z-[35] h-[48%]"
@@ -154,7 +222,24 @@ export function Hero() {
               }}
             />
 
-            <div className="absolute top-[-7%] left-[14%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg sm:left-[16%] sm:top-[-20%] md:left-[21%]">
+            <div
+              ref={iphoneRef}
+              className="absolute left-1/2 z-20 w-[180px] top-[-120px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
+            >
+              <Image
+                src={assets.heroShowcase.iphone.src}
+                alt={assets.heroShowcase.iphone.alt}
+                width={assets.heroShowcase.iphone.width}
+                height={assets.heroShowcase.iphone.height}
+                priority
+                className="w-full"
+              />
+            </div>
+
+            <div
+              ref={leftStatRef}
+              className="absolute top-[-7%] left-[14%] z-50 flex h-[122px] w-[246px] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3.5 shadow-lg backdrop-blur-lg will-change-transform sm:left-[16%] sm:top-[-20%] md:left-[21%]"
+            >
               <div className="flex w-7 shrink-0 flex-col items-center justify-center">
                 {assets.heroShowcase.avatars.map((avatar, index) => (
                   <Image
@@ -178,7 +263,10 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="absolute -top-[10%] right-[10%] z-50 flex max-w-[min(75vw,18rem)] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3 shadow-lg backdrop-blur-lg sm:right-[14%] sm:max-w-[20rem] sm:gap-4 sm:p-4 md:max-w-[22rem] md:gap-5 md:p-5">
+            <div
+              ref={rightStatRef}
+              className="absolute -top-[10%] right-[10%] z-50 flex max-w-[min(75vw,18rem)] items-center gap-3 rounded-[1.75rem] border border-white/40 bg-white/20 p-3 shadow-lg backdrop-blur-lg will-change-transform sm:right-[14%] sm:max-w-[20rem] sm:gap-4 sm:p-4 md:max-w-[22rem] md:gap-5 md:p-5"
+            >
               <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30 sm:size-12 md:size-14">
                 <Image
                   src={assets.icons.shield}
@@ -204,5 +292,6 @@ export function Hero() {
         </div>
       </div>
     </section>
+    
   );
 }
