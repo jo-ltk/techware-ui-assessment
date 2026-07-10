@@ -99,23 +99,23 @@ function MobileShowcase() {
   }, [prefersReducedMotion]);
 
   return (
-    <div ref={sectionRef} className="relative mt-20 block w-full max-w-[44rem] xl:hidden">
-      <div ref={pinRef} className="relative aspect-[1/1.28] w-full overflow-hidden">
-          <div ref={phoneRef} className="absolute -top-[4%] left-1/2 z-30 w-[28.25%] will-change-transform">
-            <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="w-full" />
-          </div>
+    <div ref={sectionRef} className="relative mt-10 block w-full max-w-[44rem] xl:hidden">
+      <div ref={pinRef} className="relative aspect-[1/1.28] w-full">
+        <div ref={phoneRef} className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] will-change-transform">
+          <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="w-full" />
+        </div>
 
-        <div ref={leftCardRef} className="absolute top-[7%] left-[21%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
+        <div ref={leftCardRef} className="absolute -top-[20%] left-[14%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
           <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
           <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.left.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.left.label}</p></div>
         </div>
 
-        <div ref={rightCardRef} className="absolute top-[14%] right-[8%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
+        <div ref={rightCardRef} className="absolute -top-[12%] right-[14%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
           <div className="flex aspect-square w-[22%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30"><Image src={assets.icons.shield} alt="" width={24} height={24} aria-hidden className="size-[52%]" /></div>
           <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.right.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.right.label}</p></div>
         </div>
 
-        <div className="absolute top-[55%] left-[10%] right-[10%] z-45 text-left">
+        <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
           <ShowcaseTextReveal pinnedContainerRef={sectionRef} animationStart="center center" animationEnd="+=160%" baseOpacity={0.2} lines={[
             { text: hero.showcase.heading, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground" },
             { text: hero.showcase.description, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted" },
