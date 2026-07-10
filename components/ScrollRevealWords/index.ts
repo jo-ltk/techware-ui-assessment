@@ -1,0 +1,1 @@
+export { ScrollRevealWords } from "./ScrollRevealWords";

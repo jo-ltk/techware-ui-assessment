@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ArrowUpRight, Play } from "lucide-react";
 
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { ScrollRevealWords } from "@/components/ScrollRevealWords";
 import { assets } from "@/constants";
 
 import { FolderFlap } from "./FolderFlap";
@@ -107,16 +108,10 @@ export function Hero() {
               >
                 {hero.showcase.heading}
               </ScrollReveal>
-              <ScrollReveal
-                as="p"
-                baseOpacity={0.2}
-                enableBlur={false}
-                baseRotation={0}
-                containerClassName="!m-0 mt-5 sm:mt-6"
-                textClassName="max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted"
-              >
-                {hero.showcase.description}
-              </ScrollReveal>
+              <ScrollRevealWords
+                text={hero.showcase.description}
+                className="mt-5 max-w-[40rem] font-serif text-[clamp(1.375rem,2vw+0.5rem,2rem)] leading-[1.45] text-foreground-muted sm:mt-6"
+              />
             </div>
 
             <Image
