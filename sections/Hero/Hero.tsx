@@ -337,11 +337,15 @@ export function Hero() {
           >
             <a
               href={hero.ctas.primary.href}
-              className="text-button inline-flex h-[2.75rem] w-full items-center justify-between gap-3 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-4 pr-1 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:gap-4 sm:pl-6 sm:pr-1.5 sm:w-auto sm:min-w-[12.75rem]"
+              className="text-button relative inline-flex h-[2.75rem] w-full items-center justify-center rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] px-5 text-center text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:min-w-[12.75rem]"
             >
               <span>{hero.ctas.primary.label}</span>
-              <span className="inline-flex size-[2rem] shrink-0 items-center justify-center rounded-full bg-black/20 sm:size-[2.375rem]">
-                <Play aria-hidden className="size-3 fill-foreground-inverse text-foreground-inverse" strokeWidth={0} />
+              <span className="absolute right-1.5 flex size-6 items-center justify-center rounded-full bg-black/20 sm:size-7">
+                <Play
+                  aria-hidden
+                  className="size-2.5 fill-foreground-inverse text-foreground-inverse"
+                  strokeWidth={0}
+                />
               </span>
             </a>
 
