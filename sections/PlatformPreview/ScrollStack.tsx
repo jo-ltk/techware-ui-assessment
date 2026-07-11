@@ -75,6 +75,11 @@ function getLayoutOffset(element: HTMLElement, useWindowScroll: boolean) {
   return top;
 }
 
+/** Toggle ScrollStack perf instrumentation (Step 1 of mobile debug). */
+const SCROLL_STACK_DEBUG =
+  typeof process !== "undefined" &&
+  process.env.NODE_ENV === "development";
+
 const ScrollStack: React.FC<ScrollStackProps> = ({
   children,
   className = "",
@@ -118,6 +123,15 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const inner = root.querySelector<HTMLElement>(".scroll-stack-inner");
     cardsRef.current = cards;
     const transformsCache = lastTransformsRef.current;
+    // Perf debug: throttled sampling + counts (dev only).
+    let transformFrame = 0;
+    let lastTransformSampleAt = 0;
+    let transformsAppliedInWindow = 0;
+    let refreshCountWindow = 0;
+    let resizeObserverCountWindow = 0;
+    let windowResizeCountWindow = 0;
+    let lastRatesSampleAt = performance.now();
+    let writingPaddingBottom = false;
 
     if (!cards.length) return;
 
@@ -147,7 +161,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         card.style.marginBottom = "0px";
       }
       card.style.zIndex = String(i + 1);
-      card.style.willChange = "transform";
+      // Don't permanently promote every card — mobile GPUs pay for large
+      // image+shadow layers. will-change is enabled only while scrolling.
+      card.style.willChange = "auto";
       card.style.transformOrigin = "left top";
       card.style.backfaceVisibility = "hidden";
       card.style.perspective = "1000px";
@@ -157,12 +173,53 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       }
     });
 
-    const readViewportHeight = () =>
-      useWindowScroll ? window.innerHeight : root.clientHeight;
+    const readViewportHeight = () => {
+      if (!useWindowScroll) return root.clientHeight;
+      // Prefer the layout viewport over window.innerHeight. On iOS/Android
+      // chrome show/hide, innerHeight (and visualViewport.height) churn while
+      // scrolling; documentElement.clientHeight stays stable and keeps % pin
+      // positions from jumping every frame.
+      return document.documentElement.clientHeight || window.innerHeight;
+    };
+
+    const SCROLL_IDLE_MS = 120;
+    let lastScrollTime = 0;
+    let metricsRefreshPending = false;
+    let willChangeArmed = false;
+    let idleCheckRaf: number | null = null;
+
+    const isScrollingNow = () =>
+      performance.now() - lastScrollTime < SCROLL_IDLE_MS;
+
+    const setCardWillChange = (card: HTMLElement, value: "transform" | "auto") => {
+      if (card.style.willChange !== value) {
+        card.style.willChange = value;
+      }
+    };
+
+    const clearAllWillChange = () => {
+      for (const card of cards) setCardWillChange(card, "auto");
+      willChangeArmed = false;
+    };
+
+    const clearWritingPaddingFlag = () => {
+      // ResizeObserver often fires after layout, past a microtask — clear on
+      // the next frame so self-inflicted padding writes don't re-enter refresh.
+      requestAnimationFrame(() => {
+        writingPaddingBottom = false;
+      });
+    };
 
     const refreshMetrics = () => {
+      if (SCROLL_STACK_DEBUG) {
+        console.count("refreshMetrics");
+        refreshCountWindow++;
+      }
+
+      const prevViewport = viewportHeightRef.current;
       viewportHeightRef.current = readViewportHeight();
       // offsetTop ignores CSS transforms, so no need to reset them (that caused flashes).
+      // Layout reads: offsetTop walk — must stay OUT of the scroll/rAF hot path.
       cardTopsRef.current = cards.map((card) =>
         getLayoutOffset(card, useWindowScroll),
       );
@@ -184,9 +241,26 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           itemStackDistance * lastIdx;
         const overflowY =
           pinEnd - lastCardTop + stackPositionPx + itemStackDistance * lastIdx;
-        inner.style.paddingBottom = `${Math.max(0, Math.round(overflowY))}px`;
+        const nextPadding = `${Math.max(0, Math.round(overflowY))}px`;
+        if (inner.style.paddingBottom !== nextPadding) {
+          if (SCROLL_STACK_DEBUG) {
+            console.log("[ScrollStack] paddingBottom write", {
+              from: inner.style.paddingBottom,
+              to: nextPadding,
+              viewportHeight: containerHeight,
+              prevViewport,
+            });
+          }
+          writingPaddingBottom = true;
+          inner.style.paddingBottom = nextPadding;
+          clearWritingPaddingFlag();
+        }
       } else if (inner && useWindowScroll) {
-        inner.style.paddingBottom = "";
+        if (inner.style.paddingBottom !== "") {
+          writingPaddingBottom = true;
+          inner.style.paddingBottom = "";
+          clearWritingPaddingFlag();
+        }
       }
     };
 
@@ -196,14 +270,19 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const updateCardTransforms = () => {
       if (!cardsRef.current.length) return;
 
+      if (SCROLL_STACK_DEBUG) {
+        console.count("updateCardTransforms");
+      }
+
       const scrollTop = getScrollTop();
-      // Freeze viewport height during scroll — mobile chrome show/hide
-      // otherwise changes % positions every frame and shakes the stack.
+      // Use cached viewportHeightRef — never re-read live height here.
+      // Mid-scroll resize is deferred in scheduleMetricsRefresh (mobile chrome).
       const containerHeight = viewportHeightRef.current || readViewportHeight();
       const stackPositionPx = parseLength(stackPosition, containerHeight);
       const scaleEndPositionPx = parseLength(scaleEndPosition, containerHeight);
       const endElementTop = endTopRef.current;
       const applyBlur = blurAmount > 0;
+      const scrolling = isScrollingNow();
       // Release when the end marker reaches the stack — not mid-viewport
       // (that left a half-screen empty band before the footer).
       const pinEnd =
@@ -220,6 +299,13 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           if (scrollTop >= jTriggerStart) topCardIndex = j;
         }
       }
+
+      let samplePinStart = 0;
+      let sampleTranslateY = 0;
+      let sampleScale = 1;
+      let cardsStyleUpdated = 0;
+      const timed = SCROLL_STACK_DEBUG && transformFrame % 60 === 0;
+      if (timed) console.time("updateCardTransforms");
 
       cardsRef.current.forEach((card, i) => {
         const cardTop = cardTopsRef.current[i] ?? 0;
@@ -276,6 +362,24 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
               newTransform.blur > 0 ? `blur(${newTransform.blur}px)` : "none";
           }
           transformsCache.set(i, newTransform);
+          cardsStyleUpdated++;
+          transformsAppliedInWindow++;
+        }
+
+        // Promote only cards that are actively scrubbing or pinned. Idle /
+        // offscreen cards stay at will-change:auto to limit GPU memory.
+        if (scrolling) {
+          const isAnimating =
+            translateY !== 0 ||
+            scale !== 1 ||
+            (scrollTop >= pinStart && scrollTop <= pinEnd);
+          setCardWillChange(card, isAnimating ? "transform" : "auto");
+        }
+
+        if (i === 0 || (scrollTop >= pinStart && scrollTop <= pinEnd)) {
+          samplePinStart = pinStart;
+          sampleTranslateY = translateY;
+          sampleScale = scale;
         }
 
         if (i === cardsRef.current.length - 1) {
@@ -288,6 +392,45 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
           }
         }
       });
+
+      if (SCROLL_STACK_DEBUG) {
+        if (timed) console.timeEnd("updateCardTransforms");
+        transformFrame++;
+        const now = performance.now();
+        if (transformFrame % 60 === 0 || now - lastTransformSampleAt > 1000) {
+          lastTransformSampleAt = now;
+          console.log("[ScrollStack] sample", {
+            scrollTop,
+            pinStart: samplePinStart,
+            pinEnd,
+            translateY: sampleTranslateY,
+            scale: sampleScale,
+            viewportHeight: containerHeight,
+            liveInnerHeight: window.innerHeight,
+            layoutViewport: document.documentElement.clientHeight,
+            visualViewportHeight: window.visualViewport?.height,
+            scrolling,
+            cardsStyleUpdated,
+            cardCount: cardsRef.current.length,
+          });
+        }
+        if (now - lastRatesSampleAt >= 1000) {
+          const elapsedSec = (now - lastRatesSampleAt) / 1000;
+          console.log("[ScrollStack] rates/sec", {
+            updateCardTransforms: +(transformFrame / elapsedSec).toFixed(1),
+            refreshMetrics: +(refreshCountWindow / elapsedSec).toFixed(1),
+            ResizeObserver: +(resizeObserverCountWindow / elapsedSec).toFixed(1),
+            windowResize: +(windowResizeCountWindow / elapsedSec).toFixed(1),
+            styleWrites: +(transformsAppliedInWindow / elapsedSec).toFixed(1),
+          });
+          transformFrame = 0;
+          refreshCountWindow = 0;
+          resizeObserverCountWindow = 0;
+          windowResizeCountWindow = 0;
+          transformsAppliedInWindow = 0;
+          lastRatesSampleAt = now;
+        }
+      }
     };
 
     const scheduleUpdate = () => {
@@ -298,7 +441,36 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       });
     };
 
+    /** Single rAF poll — no setTimeout churn while the finger is moving. */
+    const ensureIdleCheck = () => {
+      if (idleCheckRaf != null) return;
+      const tick = () => {
+        if (isScrollingNow()) {
+          idleCheckRaf = requestAnimationFrame(tick);
+          return;
+        }
+        idleCheckRaf = null;
+        if (willChangeArmed) clearAllWillChange();
+        if (metricsRefreshPending) {
+          metricsRefreshPending = false;
+          scheduleMetricsRefresh();
+        }
+      };
+      idleCheckRaf = requestAnimationFrame(tick);
+    };
+
     const scheduleMetricsRefresh = () => {
+      // Never re-measure pin geometry mid-scroll — Safari/Chrome mobile fire
+      // resize + ResizeObserver as the URL bar hides/shows, which forced layout
+      // (offsetTop walks) + paddingBottom writes and felt like sticky freezes.
+      if (isScrollingNow()) {
+        metricsRefreshPending = true;
+        ensureIdleCheck();
+        if (SCROLL_STACK_DEBUG) {
+          console.log("[ScrollStack] metrics refresh deferred (scrolling)");
+        }
+        return;
+      }
       if (resizeRafRef.current != null) return;
       resizeRafRef.current = requestAnimationFrame(() => {
         resizeRafRef.current = null;
@@ -307,24 +479,86 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       });
     };
 
+    const markScrolling = () => {
+      lastScrollTime = performance.now();
+      willChangeArmed = true;
+      ensureIdleCheck();
+    };
+
     refreshMetrics();
     updateCardTransforms();
 
     // Observe the stack container only — per-card observers re-measure mid-scroll
     // when images decode and cause visible shaking.
-    const resizeObserver = new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (SCROLL_STACK_DEBUG) {
+        console.count("ResizeObserver");
+        resizeObserverCountWindow++;
+        const entry = entries[0];
+        console.log("[ScrollStack] ResizeObserver", {
+          writingPaddingBottom,
+          scrolling: isScrollingNow(),
+          contentHeight: entry?.contentRect.height,
+          paddingBottom: inner?.style.paddingBottom,
+          innerHeight: window.innerHeight,
+          layoutViewport: document.documentElement.clientHeight,
+          visualViewportHeight: window.visualViewport?.height,
+        });
+      }
+      // Self-inflicted: paddingBottom write resized `inner` — skip re-measure
+      // to avoid a refresh ↔ observer feedback loop on mobile.
+      if (writingPaddingBottom) return;
       scheduleMetricsRefresh();
     });
     if (inner) resizeObserver.observe(inner);
     else resizeObserver.observe(root);
 
     const onResize = () => {
+      if (SCROLL_STACK_DEBUG) {
+        console.count("window resize");
+        windowResizeCountWindow++;
+        console.log("[ScrollStack] window.resize", {
+          scrolling: isScrollingNow(),
+          innerHeight: window.innerHeight,
+          layoutViewport: document.documentElement.clientHeight,
+          visualViewportHeight: window.visualViewport?.height,
+          scrollY: window.scrollY,
+        });
+      }
       scheduleMetricsRefresh();
     };
     window.addEventListener("resize", onResize, { passive: true });
 
+    // Image load/decode can change card height after first paint — log once each.
+    if (SCROLL_STACK_DEBUG) {
+      cards.forEach((card, i) => {
+        const imgs = card.querySelectorAll("img");
+        imgs.forEach((img) => {
+          const logShift = (phase: string) => {
+            console.log("[ScrollStack] image layout", {
+              card: i,
+              phase,
+              naturalWidth: img.naturalWidth,
+              naturalHeight: img.naturalHeight,
+              clientHeight: img.clientHeight,
+              cardOffsetHeight: card.offsetHeight,
+            });
+          };
+          if (img.complete) logShift("already-complete");
+          else {
+            img.addEventListener("load", () => logShift("load"), { once: true });
+          }
+        });
+      });
+    }
+
+    const onWindowScroll = () => {
+      markScrolling();
+      scheduleUpdate();
+    };
+
     if (useWindowScroll) {
-      window.addEventListener("scroll", scheduleUpdate, { passive: true });
+      window.addEventListener("scroll", onWindowScroll, { passive: true });
     } else if (inner) {
       const lenis = new Lenis({
         wrapper: root,
@@ -341,7 +575,10 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
         syncTouchLerp: 0.075,
       });
 
-      lenis.on("scroll", scheduleUpdate);
+      lenis.on("scroll", () => {
+        markScrolling();
+        scheduleUpdate();
+      });
 
       const raf = (time: number) => {
         lenis.raf(time);
@@ -354,7 +591,11 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     return () => {
       window.removeEventListener("resize", onResize);
       if (useWindowScroll) {
-        window.removeEventListener("scroll", scheduleUpdate);
+        window.removeEventListener("scroll", onWindowScroll);
+      }
+      if (idleCheckRaf != null) {
+        cancelAnimationFrame(idleCheckRaf);
+        idleCheckRaf = null;
       }
       resizeObserver.disconnect();
 
@@ -379,6 +620,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       cardsRef.current = [];
       cardTopsRef.current = [];
       transformsCache.clear();
+      clearAllWillChange();
       if (inner && useWindowScroll) {
         inner.style.paddingBottom = "";
       }
