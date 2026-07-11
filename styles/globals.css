@@ -266,9 +266,19 @@
 
   .text-stat {
     font-family: var(--font-family-sans);
-    font-size: var(--text-stat-size);
-    line-height: var(--line-height-none);
+    font-size: clamp(0.75rem, 0.45rem + 1.2vw, var(--text-stat-size));
+    font-weight: var(--text-stat-weight);
+    line-height: var(--text-stat-leading);
     letter-spacing: var(--text-stat-tracking);
+  }
+
+  .text-stat-label {
+    font-family: var(--font-family-serif);
+    font-size: clamp(0.5rem, 0.3rem + 0.65vw, var(--text-stat-label-size));
+    font-weight: var(--text-stat-label-weight);
+    line-height: 1.2;
+    letter-spacing: var(--text-stat-label-tracking);
+    color: var(--color-foreground-muted);
   }
 
   .text-nav {
@@ -282,6 +292,7 @@
   .text-button {
     font-family: var(--font-family-sans);
     font-size: var(--text-button-size);
+    font-weight: var(--text-button-weight);
     line-height: var(--line-height-none);
     letter-spacing: var(--text-button-tracking);
   }

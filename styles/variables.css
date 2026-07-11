@@ -130,8 +130,8 @@
   --line-height-normal: 1.5;
 
   /* Negative tracking is intentional — Outfit is used tight throughout the design */
-  --letter-spacing-tighter: -0.15em; /* stat numbers: -1.2px @ 24px */
-  --letter-spacing-tight: -0.12em; /* hero: -2.4px @ 80px */
+  --letter-spacing-tighter: -0.05em; /* stat numbers: -5% / -1.2px @ 24px */
+  --letter-spacing-tight: -0.03em; /* hero: -3% / -2.4px @ 80px */
   --letter-spacing-snug: -0.09em; /* h2: -1.8px @ 60px */
   --letter-spacing-normal: -0.06em; /* h3 / orbit: -0.6px–0.9px */
   --letter-spacing-wide: -0.04em; /* footer: -0.48px–0.66px */
@@ -165,7 +165,14 @@
   --text-label-tracking: var(--letter-spacing-badge);
 
   --text-stat-size: var(--font-size-2xl);
+  --text-stat-weight: var(--font-weight-regular);
+  --text-stat-leading: var(--line-height-none);
   --text-stat-tracking: var(--letter-spacing-tighter);
+
+  --text-stat-label-size: var(--font-size-xs);
+  --text-stat-label-weight: var(--font-weight-regular);
+  --text-stat-label-leading: var(--line-height-none);
+  --text-stat-label-tracking: 0;
 
   --text-nav-size: 14px;
   --text-nav-weight: var(--font-weight-regular);
@@ -173,6 +180,7 @@
   --text-nav-tracking: 0;
 
   --text-button-size: var(--font-size-xs);
+  --text-button-weight: var(--font-weight-regular);
   --text-button-tracking: var(--letter-spacing-ui);
 
   /* -------------------------------------------------------------------------

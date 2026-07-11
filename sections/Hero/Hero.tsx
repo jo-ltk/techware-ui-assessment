@@ -17,8 +17,11 @@ const hero = {
     line1: "Verification That",
     line2: "Starts At The Source.",
   },
-  description:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  description: {
+    line1: "Lorem ipsum dolor sit amet, consectetur adipiscing elit,",
+    line2:
+      "sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
   ctas: {
     primary: { label: "Book a Demo", href: "#contact" },
     secondary: { label: "See how it works", href: "#process" },
@@ -99,20 +102,28 @@ function MobileShowcase() {
   }, [prefersReducedMotion]);
 
   return (
-    <div ref={sectionRef} className="relative mt-10 block w-full max-w-[44rem] xl:hidden">
+    <div ref={sectionRef} className="relative mt-8 block w-full max-w-[44rem] xl:hidden">
       <div ref={pinRef} className="relative aspect-[1/1.28] w-full">
         <div ref={phoneRef} className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] will-change-transform">
           <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="w-full" />
         </div>
 
-        <div ref={leftCardRef} className="absolute -top-[20%] left-[14%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
+        <div ref={leftCardRef} className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
           <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
-          <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.left.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.left.label}</p></div>
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">{hero.showcase.stats.left.value}</p>
+            <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">{hero.showcase.stats.left.label}</p>
+          </div>
         </div>
 
-        <div ref={rightCardRef} className="absolute -top-[12%] right-[14%] z-50 flex w-[17.6%] items-center gap-1.5 rounded-[clamp(0.75rem,2vw,1rem)] border border-white/40 bg-white/35 p-[clamp(0.4rem,1.4vw,1.25rem)] shadow-lg backdrop-blur-lg will-change-transform">
-          <div className="flex aspect-square w-[22%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30"><Image src={assets.icons.shield} alt="" width={24} height={24} aria-hidden className="size-[52%]" /></div>
-          <div className="min-w-0 text-left"><p className="text-stat text-[clamp(0.55rem,1.7vw,1.5rem)] leading-none text-foreground">{hero.showcase.stats.right.value}</p><p className="mt-1 text-[clamp(0.3rem,0.95vw,0.875rem)] leading-tight text-foreground-muted">{hero.showcase.stats.right.label}</p></div>
+        <div ref={rightCardRef} className="@container absolute -top-[10%] right-[8%] z-50 flex w-[min(38%,11rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
+          <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
+            <Image src={assets.icons.shield} alt="" width={24} height={24} aria-hidden className="size-[52%]" />
+          </div>
+          <div className="min-w-0 flex-1 text-left">
+            <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">{hero.showcase.stats.right.value}</p>
+            <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">{hero.showcase.stats.right.label}</p>
+          </div>
         </div>
 
         <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
@@ -288,7 +299,7 @@ export function Hero() {
         ref={pinRef}
         className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-2 text-center sm:px-6 sm:pt-10 sm:pb-3 md:pt-12 md:pb-4 xl:px-0 xl:pt-14 xl:pb-4"
       >
-        <div ref={headerRef} className="flex flex-col items-center">
+        <div ref={headerRef} className="flex flex-col items-center pb-0 md:pb-5 xl:pb-6">
           <h1
             id="hero-heading"
             className="text-hero max-w-[min(100%,var(--container-narrow))]"
@@ -297,8 +308,9 @@ export function Hero() {
             <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">{hero.headline.line2}</span>
           </h1>
 
-          <p className="text-body-large mt-4 max-w-[42rem] sm:mt-5 md:mt-6">
-            {hero.description}
+          <p className="text-body-large mt-2.5 max-w-[min(100%,var(--container-narrow))]">
+            <span className="block">{hero.description.line1}</span>
+            <span className="block">{hero.description.line2}</span>
           </p>
 
           <div
@@ -308,7 +320,7 @@ export function Hero() {
           >
             <a
               href={hero.ctas.primary.href}
-              className="text-button inline-flex h-[2.75rem] w-full items-center justify-between gap-3 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-4 pr-1 text-[0.75rem] text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:gap-4 sm:pl-6 sm:pr-1.5 sm:text-[length:var(--text-button-size)] sm:w-auto sm:min-w-[12.75rem]"
+              className="text-button inline-flex h-[2.75rem] w-full items-center justify-between gap-3 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-4 pr-1 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:gap-4 sm:pl-6 sm:pr-1.5 sm:w-auto sm:min-w-[12.75rem]"
             >
               <span>{hero.ctas.primary.label}</span>
               <span className="inline-flex size-[2rem] shrink-0 items-center justify-center rounded-full bg-black/20 sm:size-[2.375rem]">
@@ -318,7 +330,7 @@ export function Hero() {
 
             <a
               href={hero.ctas.secondary.href}
-              className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-4 text-[0.75rem] text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:gap-1.5 sm:px-6 sm:text-[length:var(--text-button-size)] sm:w-auto"
+              className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-4 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:gap-1.5 sm:px-6 sm:w-auto"
             >
               {hero.ctas.secondary.label}
               <ArrowUpRight aria-hidden className="size-3.5 shrink-0" strokeWidth={2.25} />
@@ -328,7 +340,7 @@ export function Hero() {
 
         <MobileShowcase />
 
-        <div className="relative mt-24 hidden w-full max-w-[87.5rem] pb-0 xl:mt-40 xl:block">
+        <div className="relative mt-28 hidden w-full max-w-[87.5rem] pb-0 xl:mt-44 xl:block">
           <div className="relative aspect-[1400/1078] w-full">
             <div className="absolute top-[36%] left-[6%] right-[6%] z-40 text-left">
               <ShowcaseTextReveal
@@ -406,10 +418,10 @@ export function Hero() {
                 ))}
               </div>
               <div className="min-w-0 flex-1 text-left">
-                <p className="text-stat text-sm leading-none text-foreground sm:text-2xl">
+                <p className="text-stat text-foreground">
                   {hero.showcase.stats.left.value}
                 </p>
-                <p className="mt-1 text-[10px] leading-tight text-foreground-muted sm:mt-1.5 sm:text-sm">
+                <p className="text-stat-label mt-1">
                   {hero.showcase.stats.left.label}
                 </p>
               </div>
@@ -430,10 +442,10 @@ export function Hero() {
                 />
               </div>
               <div className="min-w-0 text-left">
-                <p className="text-stat text-sm leading-none text-foreground sm:text-xl md:text-2xl lg:text-3xl">
+                <p className="text-stat text-foreground">
                   {hero.showcase.stats.right.value}
                 </p>
-                <p className="mt-1 max-w-[12rem] text-[10px] leading-snug text-foreground-muted sm:mt-1.5 sm:text-xs md:mt-2 md:text-sm lg:text-base">
+                <p className="text-stat-label mt-1 max-w-[12rem]">
                   {hero.showcase.stats.right.label}
                 </p>
               </div>
