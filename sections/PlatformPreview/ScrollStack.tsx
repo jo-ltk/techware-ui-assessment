@@ -4,6 +4,9 @@ import React, { useLayoutEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import Lenis from "lenis";
 
+import { useReducedMotion } from "@/hooks";
+import { cn } from "@/lib/utils";
+
 export interface ScrollStackItemProps {
   itemClassName?: string;
   children: ReactNode;
@@ -14,7 +17,10 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({
   itemClassName = "",
 }) => (
   <div
-    className={`scroll-stack-card relative w-full origin-top-left will-change-transform ${itemClassName}`.trim()}
+    className={cn(
+      "scroll-stack-card relative w-full origin-top-left",
+      itemClassName,
+    )}
   >
     {children}
   </div>
@@ -83,6 +89,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   useWindowScroll = false,
   onStackComplete,
 }) => {
+  const prefersReducedMotion = useReducedMotion();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const stackCompletedRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
@@ -95,7 +102,10 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
   const viewportHeightRef = useRef(0);
   const lastTransformsRef = useRef(new Map<number, CardTransform>());
   const onStackCompleteRef = useRef(onStackComplete);
-  onStackCompleteRef.current = onStackComplete;
+
+  useLayoutEffect(() => {
+    onStackCompleteRef.current = onStackComplete;
+  }, [onStackComplete]);
 
   useLayoutEffect(() => {
     const root = scrollerRef.current;
@@ -110,6 +120,25 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     const transformsCache = lastTransformsRef.current;
 
     if (!cards.length) return;
+
+    // Static stacked list — no pin/scale scrub when the user prefers reduced motion.
+    if (prefersReducedMotion) {
+      cards.forEach((card, i) => {
+        card.style.marginBottom =
+          i < cards.length - 1 ? `${Math.min(itemDistance, 48)}px` : "0px";
+        card.style.zIndex = "";
+        card.style.willChange = "auto";
+        card.style.transform = "";
+        card.style.filter = "none";
+        card.style.transformOrigin = "";
+        card.style.backfaceVisibility = "";
+        card.style.perspective = "";
+      });
+      if (inner && useWindowScroll) {
+        inner.style.paddingBottom = "";
+      }
+      return;
+    }
 
     cards.forEach((card, i) => {
       if (i < cards.length - 1) {
@@ -364,6 +393,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
     rotationAmount,
     blurAmount,
     useWindowScroll,
+    prefersReducedMotion,
   ]);
 
   return (

@@ -70,6 +70,7 @@ export function FolderFlap({ className }: FolderFlapProps) {
         alt={assets.heroShowcase.folderTop.alt}
         width={assets.heroShowcase.folderTop.width}
         height={assets.heroShowcase.folderTop.height}
+        sizes="(max-width: 1279px) 100vw, min(87.5rem, 100vw)"
         className="relative z-[1] w-full"
         style={{
           WebkitMaskImage: bottomDissolve,

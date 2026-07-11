@@ -1,6 +1,6 @@
 export const assets = {
   heroGradient: {
-    src: "/assets/hero-gradient.png",
+    src: "/assets/hero-gradient.webp",
     width: 762,
     height: 1903,
     alt: "",
@@ -63,34 +63,31 @@ export const assets = {
   platformPreview: {
     card1: {
       src: "/assets/card1.png",
-      width: 2250,
-      height: 1624,
+      width: 1200,
+      height: 866,
       alt: "Ion dashboard showing sales overview, pipeline charts, and deal distribution",
     },
     card2: {
       src: "/assets/card2.png",
-      width: 2250,
-      height: 1624,
+      width: 1200,
+      height: 866,
       alt: "Ion dashboard showing real-time verification status tracking",
     },
     card3: {
       src: "/assets/card3.png",
-      width: 2250,
-      height: 1624,
+      width: 1200,
+      height: 866,
       alt: "Ion dashboard showing issuer-verified documents",
     },
     card4: {
       src: "/assets/card4.png",
-      width: 2250,
-      height: 1624,
+      width: 1200,
+      height: 866,
       alt: "Ion dashboard showing applicant approval activity",
     },
   },
   icons: {
-    community: "/assets/icon1.svg",
     shield: "/assets/icon3.svg",
-    scale: "/assets/icon4.svg",
-    figure: "/assets/icon2.svg",
   },
   footer: {
     linkedin: {
@@ -115,8 +112,8 @@ export const assets = {
   heroShowcase: {
     iphone: {
       src: "/assets/iphone-14-pro.png",
-      width: 1204,
-      height: 2454,
+      width: 900,
+      height: 1834,
       alt: "Verify Global mobile app on iPhone",
     },
     iphoneGlow: {
@@ -127,7 +124,6 @@ export const assets = {
     },
     folderTop: {
       src: "/assets/folder-top.svg",
-      maskSrc: "/assets/folder-top-mask.svg",
       width: 1400,
       height: 1078,
       alt: "",

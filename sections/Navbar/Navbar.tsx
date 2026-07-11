@@ -115,6 +115,7 @@ export function Navbar() {
               alt=""
               width={assets.logo.width}
               height={assets.logo.height}
+              sizes="32px"
               priority
               aria-hidden
               className="block h-full w-auto object-contain"

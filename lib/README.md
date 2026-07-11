@@ -1,7 +1,8 @@
 # lib
 
-Core application logic that is not UI. Animation orchestration, third-party integrations, and shared helpers live here.
+Core application logic that is not UI.
 
-- `animations/` — Section-level animation init/teardown
-- `gsap/` — GSAP plugin registration and context management
+- `fonts/` — Next.js font loading and CSS variable exports
 - `helpers/` — Environment and platform utilities
+- `motion.ts` — Shared motion math helpers
+- `utils.ts` — Classname and shared utilities

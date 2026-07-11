@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -113,6 +113,8 @@ export function WhoItsFor() {
 
     const updateOrbitMetrics = (progress = 0) => {
       const width = container.offsetWidth;
+      if (width <= 0) return;
+
       orbitRadii.start = width * ORBIT_RADIUS_START_RATIO;
       orbitRadii.end = width * ORBIT_RADIUS_END_RATIO;
       applyOrbitRadius(progress);
@@ -132,7 +134,13 @@ export function WhoItsFor() {
       force3D: true,
     });
 
-    if (prefersReducedMotion) return;
+    // Keep cards readable when motion is reduced — still position the orbit.
+    if (prefersReducedMotion) {
+      return () => {
+        container.style.removeProperty("--orbit-radius");
+        container.style.removeProperty("--cards-offset-x");
+      };
+    }
 
     ensureScrollTriggerRegistered();
 
@@ -145,6 +153,9 @@ export function WhoItsFor() {
         pinSpacing: true,
         scrub: 1,
         invalidateOnRefresh: true,
+        onRefresh: (self) => {
+          updateOrbitMetrics(self.progress);
+        },
         onUpdate: (self) => {
           const t = ORBIT_EASE(self.progress);
           const angle = t * FULL_ROTATION;
@@ -170,9 +181,23 @@ export function WhoItsFor() {
 
     window.addEventListener("resize", handleResize);
 
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
+
+    // Hero/pin layout can settle a frame later — remeasure once more.
+    const refreshFrame = requestAnimationFrame(() => {
+      handleResize();
+    });
+
     return () => {
+      cancelAnimationFrame(refreshFrame);
       window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       ctx.revert();
+      container.style.removeProperty("--orbit-radius");
+      container.style.removeProperty("--cards-offset-x");
     };
   }, [prefersReducedMotion]);
 
@@ -196,6 +221,7 @@ export function WhoItsFor() {
             alt=""
             width={assets.whoItsFor.gradient.width}
             height={assets.whoItsFor.gradient.height}
+            sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
             className="h-auto w-full mix-blend-screen"
           />
         </div>
@@ -221,6 +247,13 @@ export function WhoItsFor() {
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
+            style={
+              {
+                // Fallback before JS measures — keeps cards on the ring, not stacked at center.
+                "--orbit-radius": "36%",
+                "--cards-offset-x": "0px",
+              } as CSSProperties
+            }
           >
             <Image
               src={assets.whoItsFor.core.src}
@@ -228,6 +261,7 @@ export function WhoItsFor() {
               width={assets.whoItsFor.core.width}
               height={assets.whoItsFor.core.height}
               aria-hidden
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 54rem"
               className="pointer-events-none absolute inset-0 z-0 h-full w-full"
               priority
             />
@@ -252,7 +286,7 @@ export function WhoItsFor() {
                       style={{
                         left: `${ORBIT_CENTER_X}%`,
                         top: `${ORBIT_CENTER_Y}%`,
-                        transform: `rotate(${angle}deg) translateX(var(--orbit-radius)) rotate(${-angle}deg)`,
+                        transform: `rotate(${angle}deg) translateX(var(--orbit-radius, 36%)) rotate(${-angle}deg)`,
                       }}
                     >
                       <div className="w-fit -translate-x-1/2 -translate-y-1/2">
@@ -295,6 +329,7 @@ function OrbitCard({ industry }: { industry: Industry }) {
           alt=""
           width={icon.width}
           height={icon.height}
+          sizes="32px"
           aria-hidden
           className="h-4 w-auto sm:h-5"
         />

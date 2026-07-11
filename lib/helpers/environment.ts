@@ -3,5 +3,6 @@ export function isBrowser(): boolean {
 }
 
 export function prefersReducedMotion(): boolean {
-  return false;
+  if (!isBrowser()) return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }

@@ -1,12 +1,3 @@
-export { AnimatedText } from "./AnimatedText";
-export { Badge } from "./Badge";
-export { Button } from "./Button";
-export { Card } from "./Card";
-export { Container } from "./Container";
-export { Gradient } from "./Gradient";
-export { Logo } from "./Logo";
-export { PhoneMockup } from "./PhoneMockup";
-export { Section } from "./Section";
-export { ScrollReveal } from "./ScrollReveal";
-export { SectionTitle } from "./SectionTitle";
-export { Video } from "./Video";
+// Reusable UI primitives live here as they are introduced.
+// Sections currently compose markup directly; add shared components under
+// components/<Name>/ with a barrel export when they are reused.

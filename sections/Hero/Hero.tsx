@@ -108,11 +108,19 @@ function MobileShowcase() {
           <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2">
             <Image src={assets.heroShowcase.iphoneGlow.src} alt="" width={assets.heroShowcase.iphoneGlow.width} height={assets.heroShowcase.iphoneGlow.height} className="h-auto w-full" />
           </div>
-          <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="relative z-10 w-full" />
+          <Image
+            src={assets.heroShowcase.iphone.src}
+            alt={assets.heroShowcase.iphone.alt}
+            width={assets.heroShowcase.iphone.width}
+            height={assets.heroShowcase.iphone.height}
+            sizes="28vw"
+            priority
+            className="relative z-10 w-full"
+          />
         </div>
 
         <div ref={leftCardRef} className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
-          <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
+          <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} sizes="48px" className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
           <div className="min-w-0 flex-1 text-left">
             <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">{hero.showcase.stats.left.value}</p>
             <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">{hero.showcase.stats.left.label}</p>
@@ -298,6 +306,7 @@ export function Hero() {
           alt=""
           width={assets.heroGradient.width}
           height={assets.heroGradient.height}
+          sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
           priority
           className="h-auto w-full mix-blend-screen"
         />
@@ -394,6 +403,7 @@ export function Hero() {
                 alt={assets.heroShowcase.folderBottom.alt}
                 width={assets.heroShowcase.folderBottom.width}
                 height={assets.heroShowcase.folderBottom.height}
+                sizes="min(87.5rem, 100vw)"
                 className="w-full"
               />
             </div>
@@ -419,6 +429,7 @@ export function Hero() {
                 alt={assets.heroShowcase.iphone.alt}
                 width={assets.heroShowcase.iphone.width}
                 height={assets.heroShowcase.iphone.height}
+                sizes="300px"
                 priority
                 className="relative z-10 w-full"
               />
@@ -436,6 +447,7 @@ export function Hero() {
                     alt={avatar.alt}
                     width={avatar.width}
                     height={avatar.height}
+                    sizes="28px"
                     className={`relative size-5 rounded-full border-2 border-white/60 bg-white/30 object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] sm:size-7 ${index > 0 ? "-mt-3 sm:-mt-4" : ""}`}
                     style={{ zIndex: index + 1 }}
                   />
@@ -462,6 +474,7 @@ export function Hero() {
                   width={24}
                   height={24}
                   aria-hidden
+                  sizes="28px"
                   className="size-3.5 sm:size-5 md:size-6 lg:size-7"
                 />
               </div>

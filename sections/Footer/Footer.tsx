@@ -72,13 +72,10 @@ export function Footer() {
   });
   const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
-  useEffect(() => {
-    if (prefersReducedMotion || !isNearViewport) {
-      return;
-    }
-
+  // Latch once the footer approaches the viewport (keep loaded after leaving).
+  if (!shouldLoadVideo && !prefersReducedMotion && isNearViewport) {
     setShouldLoadVideo(true);
-  }, [isNearViewport, prefersReducedMotion]);
+  }
 
   useEffect(() => {
     const video = videoRef.current;
@@ -144,7 +141,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -162,7 +159,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -179,7 +176,7 @@ export function Footer() {
                   {contact.items.map((item) => (
                     <li
                       key={item.label}
-                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55"
+                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75"
                     >
                       <item.icon className="size-3.5 shrink-0" aria-hidden />
                       {item.label}
@@ -207,6 +204,7 @@ export function Footer() {
                         alt={link.icon.alt}
                         width={link.icon.width}
                         height={link.icon.height}
+                        sizes="30px"
                         className="size-[30px]"
                         aria-hidden
                       />
@@ -216,7 +214,7 @@ export function Footer() {
               </div>
             </div>
 
-            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/40 sm:pt-16">
+            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/60 sm:pt-16">
               © 2026 Lorem.app. All rights reserved.
             </p>
           </div>
