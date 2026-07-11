@@ -120,7 +120,7 @@ export function PlatformPreview() {
     <section
       id="platform-preview"
       aria-labelledby="platform-preview-heading"
-      className="bg-background px-4 pt-6 pb-8 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:overflow-x-hidden lg:pt-12 lg:pb-12"
+      className="bg-background px-4 pt-6 pb-10 sm:px-5 sm:pt-8 sm:pb-12 md:px-6 md:pt-10 md:pb-12 lg:overflow-x-hidden lg:pt-12 lg:pb-12"
     >
       <div className="container-content">
         <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">

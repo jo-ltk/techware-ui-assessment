@@ -4,6 +4,14 @@ import { useLayoutEffect, useRef, type CSSProperties } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  Briefcase,
+  GraduationCap,
+  Landmark,
+  Scale,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { assets } from "@/constants";
 import { useReducedMotion } from "@/hooks";
 
@@ -13,33 +21,31 @@ const whoItsFor = {
   description: "Wherever credentials matter, Lorem handles the verification",
 } as const;
 
-type IndustryIcon = (typeof assets.whoItsFor.industries)[keyof typeof assets.whoItsFor.industries];
-
 type Industry = {
   label: [string, string];
-  icon: IndustryIcon;
+  icon: LucideIcon;
 };
 
 const industries: Industry[] = [
   {
     label: ["Compliance &", "Mobility Teams"],
-    icon: assets.whoItsFor.industries.compliance,
+    icon: ShieldCheck,
   },
   {
     label: ["Immigration", "Law Firms"],
-    icon: assets.whoItsFor.industries.immigration,
+    icon: Scale,
   },
   {
     label: ["Financial", "Institutions"],
-    icon: assets.whoItsFor.industries.financial,
+    icon: Landmark,
   },
   {
     label: ["Universities &", "Training Institutes"],
-    icon: assets.whoItsFor.industries.universities,
+    icon: GraduationCap,
   },
   {
     label: ["HR & Recruitment", "Firms"],
-    icon: assets.whoItsFor.industries.hr,
+    icon: Briefcase,
   },
 ];
 
@@ -57,8 +63,21 @@ const MOBILE_OFFSET_MAX_WIDTH = 768;
 const ROTATIONS = 1;
 const FULL_ROTATION = 360 * ROTATIONS;
 const PIN_OFFSET_PX = 96;
+// Slightly tighter under the nav on smaller laptops so copy + orbit sit higher.
+const PIN_OFFSET_LAPTOP_PX = 72;
+const LAPTOP_LAYOUT_QUERY = "(min-width: 1280px) and (max-width: 1439.98px)";
+// Nav + copy + gaps (+ card overflow past the artboard) reserved while pinned.
+// Tall desktops still hit max-w-[54.125rem] unchanged (calc resolves larger than the cap).
+const ORBIT_FIT_CHROME = "20.5rem";
 // Soft ease so rotation + inward spiral match the prototype's scrub feel.
 const ORBIT_EASE = gsap.parseEase("power1.inOut");
+
+function getPinOffsetPx() {
+  if (typeof window === "undefined") return PIN_OFFSET_PX;
+  return window.matchMedia(LAPTOP_LAYOUT_QUERY).matches
+    ? PIN_OFFSET_LAPTOP_PX
+    : PIN_OFFSET_PX;
+}
 
 let scrollTriggerRegistered = false;
 
@@ -147,7 +166,7 @@ export function WhoItsFor() {
     const ctx = gsap.context(() => {
       ScrollTrigger.create({
         trigger: section,
-        start: `top top+=${PIN_OFFSET_PX}`,
+        start: () => `top top+=${getPinOffsetPx()}`,
         end: () => `+=${getScrollDistance()}`,
         pin: pin,
         pinSpacing: true,
@@ -206,7 +225,7 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="industries"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-hidden bg-background px-4 pt-6 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10"
+      className="relative overflow-x-clip bg-background px-4 pt-6 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 xl:pt-8 xl:pb-8 min-[1440px]:pt-10 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-4 max-md:[@media(max-height:800px)]:pb-4"
     >
       <div
         ref={pinRef}
@@ -214,14 +233,27 @@ export function WhoItsFor() {
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute bottom-0 -left-4 z-[1] w-[min(62vw,22rem)] max-md:bottom-auto max-md:top-0 sm:-left-5 sm:w-[min(48vw,28rem)] md:bottom-0 md:top-auto md:-left-6 md:w-[min(40vw,32rem)]"
+          className="pointer-events-none absolute bottom-0 -left-4 z-[1] w-[min(62vw,22rem)] max-md:bottom-auto max-md:top-0 sm:-left-5 sm:w-[min(48vw,28rem)] md:bottom-0 md:top-auto md:-left-6 md:w-[min(40vw,32rem)] xl:bottom-auto xl:top-0 xl:-left-[5rem] xl:w-[min(60vw,44rem)] min-[1440px]:bottom-0 min-[1440px]:top-auto min-[1440px]:-left-6 min-[1440px]:w-[min(40vw,32rem)]"
         >
           <Image
             src={assets.whoItsFor.gradient.src}
             alt=""
             width={assets.whoItsFor.gradient.width}
             height={assets.whoItsFor.gradient.height}
-            sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
+            sizes="(max-width: 640px) 62vw, (max-width: 1279px) 40vw, (max-width: 1439px) 60vw, 32rem"
+            className="h-auto w-full mix-blend-screen"
+          />
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-0 -right-[5rem] z-[1] hidden w-[min(60vw,44rem)] -scale-x-100 xl:block min-[1440px]:hidden"
+        >
+          <Image
+            src={assets.whoItsFor.gradient.src}
+            alt=""
+            width={assets.whoItsFor.gradient.width}
+            height={assets.whoItsFor.gradient.height}
+            sizes="60vw"
             className="h-auto w-full mix-blend-screen"
           />
         </div>
@@ -234,16 +266,23 @@ export function WhoItsFor() {
 
         <h2
           id="who-its-for-heading"
-          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-none tracking-[-0.03em] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)]"
+          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-none tracking-[-0.03em] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)] [@media(max-height:800px)]:mt-1.5 sm:[@media(max-height:800px)]:mt-2"
         >
           {whoItsFor.heading}
         </h2>
 
-        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] font-normal leading-none tracking-normal text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] md:max-w-[36rem] md:text-[length:var(--text-body-large-size)]">
+        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] font-normal leading-none tracking-normal text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] md:max-w-[36rem] md:text-[length:var(--text-body-large-size)] [@media(max-height:800px)]:mt-2 sm:[@media(max-height:800px)]:mt-2.5">
           {whoItsFor.description}
         </p>
 
-        <div className="relative mt-7 w-full max-w-[54.125rem] overflow-visible px-1 pt-2 pb-2 sm:mt-7 sm:px-2 sm:pt-3 sm:pb-3 md:mt-8 md:px-0 md:pt-4 md:pb-4">
+        <div
+          className="relative mt-5 w-full overflow-visible px-1 pt-1 pb-1 sm:mt-6 sm:px-2 sm:pt-2 sm:pb-2 md:mt-8 md:px-0 md:pt-4 md:pb-4 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:pt-1 [@media(max-height:800px)]:pb-1 md:[@media(max-height:800px)]:mt-4"
+          style={{
+            // Shrink on short viewports so the full orbit stays in the pinned frame;
+            // tall desktops still resolve to 54.125rem.
+            maxWidth: `min(54.125rem, calc((100svh - ${ORBIT_FIT_CHROME}) * 866 / 618))`,
+          }}
+        >
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
@@ -297,7 +336,7 @@ export function WhoItsFor() {
                           className="w-fit will-change-transform"
                         >
                           {/* Scale wrapper stays outside GSAP rotate so scrub transforms aren't overwritten */}
-                          <div className="w-fit origin-center scale-[0.42] sm:scale-[0.58] md:scale-[0.72] lg:scale-100">
+                          <div className="w-fit origin-center scale-[0.38] sm:scale-[0.5] md:scale-[0.62] lg:scale-[0.78] xl:scale-100">
                             <OrbitCard industry={industry} />
                           </div>
                         </div>
@@ -318,25 +357,20 @@ export function WhoItsFor() {
 }
 
 function OrbitCard({ industry }: { industry: Industry }) {
-  const { icon, label } = industry;
+  const { icon: Icon, label } = industry;
   const fullLabel = label.join(" ");
 
   return (
-    <div className="inline-flex w-fit max-w-none items-center gap-2 rounded-pill border-2 border-white bg-surface-glass-strong px-3 py-2.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-3 sm:px-4 sm:py-3">
-      <span className="flex size-6 shrink-0 items-center justify-center sm:size-8">
-        <Image
-          src={icon.src}
-          alt=""
-          width={icon.width}
-          height={icon.height}
-          sizes="32px"
+    <div className="inline-flex w-fit max-w-none items-center gap-1.5 rounded-pill border border-white bg-surface-glass-strong px-2.5 py-1.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-2 sm:px-3 sm:py-2">
+      <span className="flex size-5 shrink-0 items-center justify-center text-accent sm:size-6">
+        <Icon
           aria-hidden
-          className="h-4 w-auto sm:h-5"
+          className="size-3.5 stroke-[1.75] sm:size-4"
         />
       </span>
       <span
         aria-label={fullLabel}
-        className="shrink-0 whitespace-nowrap font-sans text-[0.75rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.8125rem] md:text-[0.875rem] lg:text-[0.9375rem]"
+        className="shrink-0 whitespace-nowrap font-sans text-[0.6875rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.75rem] md:text-[0.8125rem] lg:text-[0.875rem]"
       >
         {label[0]}
         <br />

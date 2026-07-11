@@ -200,7 +200,8 @@ export default function MobileScrollStack({
       <div
         className={
           useWindowScroll
-            ? "scroll-stack-inner pb-8 sm:pb-12"
+            ? // Small runway so pinned cards clear before the footer (pinSpacing: false).
+              "scroll-stack-inner pb-16 sm:pb-20"
             : "scroll-stack-inner min-h-screen px-20 pb-[50rem] pt-[20vh]"
         }
       >
