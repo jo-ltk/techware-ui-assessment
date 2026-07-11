@@ -4,6 +4,7 @@ import { useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { useReducedMotion } from "@/hooks";
 import { wordRevealOpacity } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -24,8 +25,15 @@ type Line = {
 type ShowcaseTextRevealProps = {
   lines: Line[];
   className?: string;
+  /** The element ScrollTrigger pins — required when this text lives inside a pin. */
   pinnedContainerRef?: React.RefObject<HTMLElement | null>;
+  /**
+   * Element whose pin scroll should drive the reveal (usually the pin trigger).
+   * When set, progress maps 1:1 to that pin's scrub range so words animate while scrolling.
+   */
+  scrollTriggerRef?: React.RefObject<HTMLElement | null>;
   animationStart?: string;
+  /** Scroll distance after start. Prefer a string so the effect stays stable across renders. */
   animationEnd?: string;
   baseOpacity?: number;
 };
@@ -34,12 +42,14 @@ export function ShowcaseTextReveal({
   lines,
   className,
   pinnedContainerRef,
-  animationStart = "center center",
-  animationEnd = "+=160%",
+  scrollTriggerRef,
+  animationStart = "top top+=80",
+  animationEnd = "+=120%",
   baseOpacity = 0.2,
 }: ShowcaseTextRevealProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const wordEls = useRef<(HTMLSpanElement | null)[]>([]);
+  const prefersReducedMotion = useReducedMotion();
 
   const parsedLines = useMemo(
     () =>
@@ -67,8 +77,6 @@ export function ShowcaseTextReveal({
     const root = rootRef.current;
     if (!root || totalWords === 0) return;
 
-    ensureScrollTriggerRegistered();
-
     const applyProgress = (progress: number) => {
       for (let i = 0; i < totalWords; i++) {
         const el = wordEls.current[i];
@@ -80,16 +88,32 @@ export function ShowcaseTextReveal({
       }
     };
 
+    if (prefersReducedMotion) {
+      applyProgress(1);
+      return;
+    }
+
+    ensureScrollTriggerRegistered();
     applyProgress(0);
 
+    const pinTrigger = scrollTriggerRef?.current ?? null;
+    const pinnedContainer = pinnedContainerRef?.current ?? undefined;
+
     const ctx = gsap.context(() => {
+      // Drive from the pin trigger when available so progress advances for the
+      // whole pinned scrub — the text itself stays fixed in the viewport.
       ScrollTrigger.create({
-        trigger: root,
+        trigger: pinTrigger ?? root,
         start: animationStart,
-        end: animationEnd,
-        scrub: 1.3,
-        pinnedContainer: pinnedContainerRef?.current ?? undefined,
+        // Match the hero pin distance (1.2vh) so words reveal across the scrub.
+        end: pinTrigger
+          ? () => `+=${Math.round(window.innerHeight * 1.2)}`
+          : animationEnd,
+        scrub: true,
+        pinnedContainer: pinTrigger ? undefined : pinnedContainer,
+        invalidateOnRefresh: true,
         onUpdate: (self) => applyProgress(self.progress),
+        onRefresh: (self) => applyProgress(self.progress),
       });
 
       ScrollTrigger.refresh();
@@ -101,6 +125,8 @@ export function ShowcaseTextReveal({
     animationStart,
     baseOpacity,
     pinnedContainerRef,
+    prefersReducedMotion,
+    scrollTriggerRef,
     totalWords,
   ]);
 
@@ -128,7 +154,7 @@ export function ShowcaseTextReveal({
                     wordEls.current[index] = node;
                   }}
                   className="inline"
-                  style={{ opacity: baseOpacity }}
+                  style={{ opacity: prefersReducedMotion ? 1 : baseOpacity }}
                 >
                   {item.word}{" "}
                 </span>

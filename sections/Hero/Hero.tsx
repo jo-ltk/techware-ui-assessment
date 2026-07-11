@@ -130,7 +130,12 @@ function MobileShowcase() {
         </div>
 
         <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
-          <ShowcaseTextReveal pinnedContainerRef={sectionRef} animationStart="center center" animationEnd="+=160%" baseOpacity={0.2} lines={[
+          <ShowcaseTextReveal
+            pinnedContainerRef={pinRef}
+            scrollTriggerRef={sectionRef}
+            animationStart="top top+=80"
+            baseOpacity={0.2}
+            lines={[
             { text: hero.showcase.heading, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground" },
             { text: hero.showcase.description, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted" },
           ]} />
@@ -352,8 +357,8 @@ export function Hero() {
             <div className="absolute top-[44%] left-[6%] right-[6%] z-40 text-left">
               <ShowcaseTextReveal
                 pinnedContainerRef={pinRef}
-                animationStart="center center"
-                animationEnd="+=160%"
+                scrollTriggerRef={sectionRef}
+                animationStart={`top top+=${PIN_OFFSET_PX}`}
                 baseOpacity={0.2}
                 lines={[
                   {

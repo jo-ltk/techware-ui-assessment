@@ -16,29 +16,29 @@ const whoItsFor = {
 type IndustryIcon = (typeof assets.whoItsFor.industries)[keyof typeof assets.whoItsFor.industries];
 
 type Industry = {
-  label: string;
+  label: [string, string];
   icon: IndustryIcon;
 };
 
 const industries: Industry[] = [
   {
-    label: "Compliance & Mobility Teams",
+    label: ["Compliance &", "Mobility Teams"],
     icon: assets.whoItsFor.industries.compliance,
   },
   {
-    label: "Immigration Law Firms",
+    label: ["Immigration", "Law Firms"],
     icon: assets.whoItsFor.industries.immigration,
   },
   {
-    label: "Financial Institutions",
+    label: ["Financial", "Institutions"],
     icon: assets.whoItsFor.industries.financial,
   },
   {
-    label: "Universities & Training Institutes",
+    label: ["Universities &", "Training Institutes"],
     icon: assets.whoItsFor.industries.universities,
   },
   {
-    label: "HR & Recruitment Firms",
+    label: ["HR & Recruitment", "Firms"],
     icon: assets.whoItsFor.industries.hr,
   },
 ];
@@ -46,15 +46,19 @@ const industries: Industry[] = [
 // Orbit pivot aligned to the SVG core (ellipse cx/cy + logo center).
 const ORBIT_CENTER_X = (402 / 866) * 100;
 const ORBIT_CENTER_Y = (325 / 618) * 100;
-const ORBIT_RADIUS_RATIO = 0.36;
+// Start outside the decorative rings; end near the outer ring so the orbit tightens inward.
+const ORBIT_RADIUS_START_RATIO = 0.36;
+const ORBIT_RADIUS_END_RATIO = 0.2;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
 // Horizontal card nudge. Negative = left, positive = right.
-const CARDS_OFFSET_X = -93; // desktop (artboard units @ 866-wide)
-const CARDS_OFFSET_X_MOBILE = -42; // mobile (pixels) — tweak this to slide left/right
+const CARDS_OFFSET_X = -6; // desktop (artboard units @ 866-wide) — more negative = left, positive = right
+const CARDS_OFFSET_X_MOBILE = 0; // mobile (pixels) — more negative = left, positive = right
 const MOBILE_OFFSET_MAX_WIDTH = 768;
 const ROTATIONS = 1;
 const FULL_ROTATION = 360 * ROTATIONS;
 const PIN_OFFSET_PX = 96;
+// Soft ease so rotation + inward spiral match the prototype's scrub feel.
+const ORBIT_EASE = gsap.parseEase("power1.inOut");
 
 let scrollTriggerRegistered = false;
 
@@ -95,10 +99,23 @@ export function WhoItsFor() {
 
     if (cards.length !== industries.length) return;
 
-    const updateOrbitRadius = () => {
-      const width = container.offsetWidth;
-      const radius = width * ORBIT_RADIUS_RATIO;
+    const orbitRadii = { start: 0, end: 0 };
+
+    const applyOrbitRadius = (progress = 0) => {
+      const t = ORBIT_EASE(progress);
+      const radius = gsap.utils.interpolate(
+        orbitRadii.start,
+        orbitRadii.end,
+        t,
+      );
       container.style.setProperty("--orbit-radius", `${radius}px`);
+    };
+
+    const updateOrbitMetrics = (progress = 0) => {
+      const width = container.offsetWidth;
+      orbitRadii.start = width * ORBIT_RADIUS_START_RATIO;
+      orbitRadii.end = width * ORBIT_RADIUS_END_RATIO;
+      applyOrbitRadius(progress);
 
       // Mobile uses raw pixels so the nudge is visible; desktop stays artboard-scaled.
       const offsetPx =
@@ -108,7 +125,7 @@ export function WhoItsFor() {
       container.style.setProperty("--cards-offset-x", `${offsetPx}px`);
     };
 
-    updateOrbitRadius();
+    updateOrbitMetrics(0);
 
     gsap.set(orbit, {
       transformOrigin: ORBIT_ORIGIN,
@@ -129,8 +146,10 @@ export function WhoItsFor() {
         scrub: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          const angle = self.progress * FULL_ROTATION;
+          const t = ORBIT_EASE(self.progress);
+          const angle = t * FULL_ROTATION;
 
+          applyOrbitRadius(self.progress);
           gsap.set(orbit, { rotate: angle });
           cards.forEach((card) => {
             gsap.set(card, { rotate: -angle });
@@ -142,7 +161,10 @@ export function WhoItsFor() {
     }, section);
 
     const handleResize = () => {
-      updateOrbitRadius();
+      const progress =
+        ScrollTrigger.getAll().find((st) => st.trigger === section)
+          ?.progress ?? 0;
+      updateOrbitMetrics(progress);
       ScrollTrigger.refresh();
     };
 
@@ -225,7 +247,7 @@ export function WhoItsFor() {
 
                   return (
                     <div
-                      key={industry.label}
+                      key={industry.label.join(" ")}
                       className="absolute h-0 w-0"
                       style={{
                         left: `${ORBIT_CENTER_X}%`,
@@ -233,15 +255,15 @@ export function WhoItsFor() {
                         transform: `rotate(${angle}deg) translateX(var(--orbit-radius)) rotate(${-angle}deg)`,
                       }}
                     >
-                      <div className="-translate-x-1/2 -translate-y-1/2">
+                      <div className="w-fit -translate-x-1/2 -translate-y-1/2">
                         <div
                           ref={(element) => {
                             cardRefs.current[index] = element;
                           }}
-                          className="will-change-transform"
+                          className="w-fit will-change-transform"
                         >
                           {/* Scale wrapper stays outside GSAP rotate so scrub transforms aren't overwritten */}
-                          <div className="origin-center scale-[0.42] sm:scale-[0.58] md:scale-[0.72] lg:scale-100">
+                          <div className="w-fit origin-center scale-[0.42] sm:scale-[0.58] md:scale-[0.72] lg:scale-100">
                             <OrbitCard industry={industry} />
                           </div>
                         </div>
@@ -263,21 +285,27 @@ export function WhoItsFor() {
 
 function OrbitCard({ industry }: { industry: Industry }) {
   const { icon, label } = industry;
+  const fullLabel = label.join(" ");
 
   return (
-    <div className="flex w-max max-w-[13rem] items-center gap-3 rounded-pill border-2 border-white bg-surface-glass-strong px-4 py-3 text-left shadow-subtle backdrop-blur-[6px]">
-      <span className="flex size-8 shrink-0 items-center justify-center">
+    <div className="inline-flex w-fit max-w-none items-center gap-2 rounded-pill border-2 border-white bg-surface-glass-strong px-3 py-2.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-3 sm:px-4 sm:py-3">
+      <span className="flex size-6 shrink-0 items-center justify-center sm:size-8">
         <Image
           src={icon.src}
           alt=""
           width={icon.width}
           height={icon.height}
           aria-hidden
-          className="h-5 w-auto"
+          className="h-4 w-auto sm:h-5"
         />
       </span>
-      <span className="font-sans text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-foreground-muted sm:text-[0.875rem] md:text-[0.9375rem]">
-        {label}
+      <span
+        aria-label={fullLabel}
+        className="shrink-0 whitespace-nowrap font-sans text-[0.75rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.8125rem] md:text-[0.875rem] lg:text-[0.9375rem]"
+      >
+        {label[0]}
+        <br />
+        {label[1]}
       </span>
     </div>
   );
