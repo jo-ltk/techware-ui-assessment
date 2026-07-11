@@ -75,6 +75,8 @@ function PlatformPreviewCard({
               alt={image.alt}
               width={image.width}
               height={image.height}
+              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 55vw"
+              decoding="async"
               className="h-auto w-full"
             />
             <div
