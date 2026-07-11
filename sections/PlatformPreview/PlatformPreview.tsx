@@ -127,10 +127,10 @@ export function PlatformPreview() {
         <div className="mt-6 sm:mt-10 md:mt-14 lg:mt-16">
           <ScrollStack
             useWindowScroll
-            // Shorter runway on mobile so the stack keeps pace with touch scroll.
-            itemDistance={isMobile ? 48 : 120}
-            itemStackDistance={isMobile ? 36 : 78}
-            stackPosition={isMobile ? "8%" : "12%"}
+            // Mobile: tight gaps + fixed px top (avoids % jumps when URL bar toggles).
+            itemDistance={isMobile ? 20 : 120}
+            itemStackDistance={isMobile ? 28 : 78}
+            stackPosition={isMobile ? "64px" : "12%"}
           >
             {platformPreview.cards.map((card) => (
               <ScrollStackItem key={card.key}>
