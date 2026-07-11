@@ -162,7 +162,15 @@ export function PlatformPreview() {
 
           <div className="lg:hidden">
             {!isDesktop ? (
-              <MobileScrollStack>
+              <MobileScrollStack
+                useWindowScroll
+                itemDistance={100}
+                itemStackDistance={30}
+                itemScale={0.03}
+                stackPosition="20%"
+                scaleEndPosition="10%"
+                baseScale={0.85}
+              >
                 <PreviewCards />
               </MobileScrollStack>
             ) : null}
