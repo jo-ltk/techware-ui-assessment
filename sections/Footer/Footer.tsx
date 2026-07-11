@@ -1,7 +1,15 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { MapPin, Phone } from "lucide-react";
 
 import { assets } from "@/constants";
+import { useIntersection, useReducedMotion } from "@/hooks";
+
+const FOOTER_VIDEO_SRC = "/videos/footer_video.mp4";
+/** Start loading slightly before the footer enters the viewport. */
+const VIDEO_ROOT_MARGIN = "280px 0px";
 
 const footerLinks = {
   product: {
@@ -55,32 +63,80 @@ const connect = {
 } as const;
 
 export function Footer() {
-  return (
-    <footer id="contact" className="bg-background px-0 sm:px-6">
-      <div className="mx-auto w-full sm:w-[min(100%-(var(--container-padding-inline-sm)*2),var(--container-content))]">
-        <div className="relative min-h-[24rem] overflow-hidden rounded-none sm:min-h-[32rem] sm:rounded-t-[var(--radius-lg)]">
-          <video
-            className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/footer_video.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
+  const footerRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const isNearViewport = useIntersection(footerRef, {
+    rootMargin: VIDEO_ROOT_MARGIN,
+    threshold: 0,
+  });
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
 
+  useEffect(() => {
+    if (prefersReducedMotion || !isNearViewport) {
+      return;
+    }
+
+    setShouldLoadVideo(true);
+  }, [isNearViewport, prefersReducedMotion]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !shouldLoadVideo) {
+      return;
+    }
+
+    if (isNearViewport) {
+      void video.play().catch(() => {
+        // Autoplay can be blocked; muted + playsInline usually succeeds.
+      });
+      return;
+    }
+
+    video.pause();
+  }, [isNearViewport, shouldLoadVideo]);
+
+  return (
+    <footer
+      ref={footerRef}
+      id="contact"
+      className="bg-background px-0 sm:px-6"
+    >
+      <div className="mx-auto w-full sm:w-[min(100%-(var(--container-padding-inline-sm)*2),var(--container-content))]">
+        <div className="relative min-h-[24rem] overflow-hidden rounded-none bg-[#0a0f1c] sm:min-h-[32rem] sm:rounded-t-[var(--radius-lg)]">
+          {shouldLoadVideo ? (
+            <video
+              ref={videoRef}
+              className="absolute inset-0 h-full w-full object-cover"
+              src={FOOTER_VIDEO_SRC}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden
+              tabIndex={-1}
+            />
+          ) : null}
+
+          {/* Readability scrim — keeps link text contrast over the video */}
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgb(196,88,32,0.22),transparent_55%)]"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgb(6,10,20,0.55)_0%,rgb(6,10,20,0.72)_45%,rgb(6,10,20,0.82)_100%)]"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgb(32,64,140,0.2),transparent_55%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgb(196,88,32,0.22),transparent_55%)] mix-blend-soft-light"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgb(32,64,140,0.2),transparent_55%)] mix-blend-soft-light"
             aria-hidden
           />
 
           <div className="relative z-10 flex min-h-[inherit] flex-col p-5 sm:p-10 md:p-12 lg:p-14">
             <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-12 md:grid-cols-4">
               <div>
-                <h3 className="text-sm font-medium text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
                   {footerLinks.product.title}
                 </h3>
                 <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
@@ -88,7 +144,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-white/60 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55 transition-colors hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -98,7 +154,7 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
                   {footerLinks.company.title}
                 </h3>
                 <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
@@ -106,7 +162,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-white/60 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55 transition-colors hover:text-white"
                       >
                         {link.label}
                       </a>
@@ -116,14 +172,14 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
                   {contact.title}
                 </h3>
                 <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
                   {contact.items.map((item) => (
                     <li
                       key={item.label}
-                      className="flex items-center gap-2 text-sm text-white/60"
+                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/55"
                     >
                       <item.icon className="size-3.5 shrink-0" aria-hidden />
                       {item.label}
@@ -133,7 +189,7 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
                   {connect.title}
                 </h3>
                 <div className="mt-4 flex items-center gap-3 sm:mt-5">
@@ -160,7 +216,7 @@ export function Footer() {
               </div>
             </div>
 
-            <p className="mt-auto pt-10 text-right text-xs text-white/40 sm:pt-16">
+            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/40 sm:pt-16">
               © 2026 Lorem.app. All rights reserved.
             </p>
           </div>
