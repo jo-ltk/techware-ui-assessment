@@ -157,7 +157,7 @@ export function WhoItsFor() {
   return (
     <section
       ref={sectionRef}
-      id="solution"
+      id="industries"
       aria-labelledby="who-its-for-heading"
       className="relative overflow-x-hidden bg-background px-4 pt-6 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10"
     >

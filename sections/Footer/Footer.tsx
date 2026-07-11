@@ -56,7 +56,7 @@ const connect = {
 
 export function Footer() {
   return (
-    <footer className="bg-background px-0 sm:px-6">
+    <footer id="contact" className="bg-background px-0 sm:px-6">
       <div className="mx-auto w-full sm:w-[min(100%-(var(--container-padding-inline-sm)*2),var(--container-content))]">
         <div className="relative min-h-[24rem] overflow-hidden rounded-none sm:min-h-[32rem] sm:rounded-t-[var(--radius-lg)]">
           <video

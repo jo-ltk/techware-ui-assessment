@@ -338,6 +338,10 @@ export function Hero() {
           </div>
         </div>
 
+        {/* Single scroll targets for nav (mobile + desktop share one DOM id each). */}
+        <div id="solution" className="h-0 scroll-mt-28" aria-hidden="true" />
+        <div id="process" className="h-0 scroll-mt-28" aria-hidden="true" />
+
         <MobileShowcase />
 
         <div className="relative mt-28 hidden w-full max-w-[87.5rem] pb-0 xl:mt-44 xl:block">
