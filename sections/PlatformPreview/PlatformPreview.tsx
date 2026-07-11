@@ -3,6 +3,7 @@
 import Image from "next/image";
 
 import { assets } from "@/constants";
+import { useIsMobile } from "@/hooks";
 import { cn } from "@/lib/utils";
 
 import ScrollStack, { ScrollStackItem } from "./ScrollStack";
@@ -94,11 +95,13 @@ function PlatformPreviewCard({
 }
 
 export function PlatformPreview() {
+  const isMobile = useIsMobile();
+
   return (
     <section
       id="platform-preview"
       aria-labelledby="platform-preview-heading"
-      className="overflow-x-hidden bg-background px-4 pt-6 pb-8 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:pt-12 lg:pb-12"
+      className="bg-background px-4 pt-6 pb-8 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:pt-12 lg:pb-12"
     >
       <div className="container-content">
         <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -124,12 +127,10 @@ export function PlatformPreview() {
         <div className="mt-6 sm:mt-10 md:mt-14 lg:mt-16">
           <ScrollStack
             useWindowScroll
-            itemDistance={120}
-            itemStackDistance={78}
-            itemScale={0.04}
-            stackPosition="12%"
-            scaleEndPosition="8%"
-            baseScale={0.86}
+            // Shorter runway on mobile so the stack keeps pace with touch scroll.
+            itemDistance={isMobile ? 48 : 120}
+            itemStackDistance={isMobile ? 36 : 78}
+            stackPosition={isMobile ? "8%" : "12%"}
           >
             {platformPreview.cards.map((card) => (
               <ScrollStackItem key={card.key}>
