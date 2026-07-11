@@ -337,7 +337,7 @@ export function Hero() {
           >
             <a
               href={hero.ctas.primary.href}
-              className="text-button relative inline-flex h-[2.75rem] w-full items-center justify-center rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-6 pr-12 text-center text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:w-auto sm:pl-7 sm:pr-14"
+              className="text-button relative inline-flex h-[2.75rem] w-full items-center justify-center rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] px-12 text-center text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:w-auto sm:px-14"
             >
               <span>{hero.ctas.primary.label}</span>
               <span className="absolute right-1.5 flex size-6 items-center justify-center rounded-full bg-black/20 sm:right-2 sm:size-7">
