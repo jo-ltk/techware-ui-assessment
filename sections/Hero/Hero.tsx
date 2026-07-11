@@ -331,16 +331,16 @@ export function Hero() {
           </p>
 
           <div
-            className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-7 md:mt-7"
+            className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5"
             role="group"
             aria-label="Hero actions"
           >
             <a
               href={hero.ctas.primary.href}
-              className="text-button relative inline-flex h-[2.75rem] w-full items-center justify-center rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] px-5 text-center text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:min-w-[12.75rem]"
+              className="text-button relative inline-flex h-[2.75rem] w-full items-center justify-center rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] pl-6 pr-12 text-center text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:w-auto sm:pl-7 sm:pr-14"
             >
               <span>{hero.ctas.primary.label}</span>
-              <span className="absolute right-1.5 flex size-6 items-center justify-center rounded-full bg-black/20 sm:size-7">
+              <span className="absolute right-1.5 flex size-6 items-center justify-center rounded-full bg-black/20 sm:right-2 sm:size-7">
                 <Play
                   aria-hidden
                   className="size-2.5 fill-foreground-inverse text-foreground-inverse"
@@ -351,7 +351,7 @@ export function Hero() {
 
             <a
               href={hero.ctas.secondary.href}
-              className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-4 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:gap-1.5 sm:px-6 sm:w-auto"
+              className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-5 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:w-auto sm:gap-1.5 sm:px-6"
             >
               {hero.ctas.secondary.label}
               <ArrowUpRight aria-hidden className="size-3.5 shrink-0" strokeWidth={2.25} />
