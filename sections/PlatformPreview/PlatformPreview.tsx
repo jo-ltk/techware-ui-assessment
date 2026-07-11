@@ -96,28 +96,18 @@ function PlatformPreviewCard({
   );
 }
 
-function PreviewCards({
-  asStackItems = false,
-}: {
-  asStackItems?: boolean;
-}) {
+function PreviewCards() {
   return (
     <>
-      {platformPreview.cards.map((card) => {
-        const content = (
+      {platformPreview.cards.map((card) => (
+        <ScrollStackItem key={card.key}>
           <PlatformPreviewCard
             heading={card.heading}
             description={card.description}
             image={assets.platformPreview[card.key]}
           />
-        );
-
-        if (asStackItems) {
-          return <ScrollStackItem key={card.key}>{content}</ScrollStackItem>;
-        }
-
-        return <div key={card.key}>{content}</div>;
-      })}
+        </ScrollStackItem>
+      ))}
     </>
   );
 }
@@ -165,7 +155,7 @@ export function PlatformPreview() {
                 scaleEndPosition="8%"
                 baseScale={0.86}
               >
-                <PreviewCards asStackItems />
+                <PreviewCards />
               </ScrollStackDesktop>
             ) : null}
           </div>
@@ -173,9 +163,13 @@ export function PlatformPreview() {
           <div className="lg:hidden">
             {!isDesktop ? (
               <MobileScrollStack
-                itemDistance={24}
-                itemStackDistance={14}
-                stackPosition="12%"
+                useWindowScroll
+                itemDistance={100}
+                itemStackDistance={30}
+                itemScale={0.03}
+                stackPosition="20%"
+                scaleEndPosition="10%"
+                baseScale={0.85}
               >
                 <PreviewCards />
               </MobileScrollStack>
