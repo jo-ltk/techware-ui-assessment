@@ -140,6 +140,25 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       endTopRef.current = endElement
         ? getLayoutOffset(endElement, useWindowScroll)
         : 0;
+
+      // Cards keep a positive translateY after pinning, which overflows their
+      // layout box. Pad the inner by that overflow so section/footer spacing
+      // isn't covered (and avoid the old 30–40vh runway that left a huge gap).
+      if (useWindowScroll && inner && cards.length > 0) {
+        const containerHeight = viewportHeightRef.current;
+        const stackPositionPx = parseLength(stackPosition, containerHeight);
+        const lastIdx = cards.length - 1;
+        const lastCardTop = cardTopsRef.current[lastIdx] ?? 0;
+        const pinEnd =
+          endTopRef.current -
+          stackPositionPx -
+          itemStackDistance * lastIdx;
+        const overflowY =
+          pinEnd - lastCardTop + stackPositionPx + itemStackDistance * lastIdx;
+        inner.style.paddingBottom = `${Math.max(0, Math.round(overflowY))}px`;
+      } else if (inner && useWindowScroll) {
+        inner.style.paddingBottom = "";
+      }
     };
 
     const getScrollTop = () =>
@@ -156,7 +175,12 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       const scaleEndPositionPx = parseLength(scaleEndPosition, containerHeight);
       const endElementTop = endTopRef.current;
       const applyBlur = blurAmount > 0;
-      const pinEnd = endElementTop - containerHeight / 2;
+      // Release when the end marker reaches the stack — not mid-viewport
+      // (that left a half-screen empty band before the footer).
+      const pinEnd =
+        endElementTop -
+        stackPositionPx -
+        itemStackDistance * Math.max(cardsRef.current.length - 1, 0);
 
       let topCardIndex = 0;
       if (applyBlur) {
@@ -326,6 +350,9 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       cardsRef.current = [];
       cardTopsRef.current = [];
       transformsCache.clear();
+      if (inner && useWindowScroll) {
+        inner.style.paddingBottom = "";
+      }
     };
   }, [
     itemDistance,
@@ -359,7 +386,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
       <div
         className={
           useWindowScroll
-            ? "scroll-stack-inner pb-[30vh] sm:pb-[40vh]"
+            ? "scroll-stack-inner"
             : "scroll-stack-inner min-h-screen px-20 pb-[50rem] pt-[20vh]"
         }
       >
