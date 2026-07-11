@@ -3,9 +3,12 @@
 import Image from "next/image";
 
 import { assets } from "@/constants";
+import { useMediaQuery } from "@/hooks";
 import { cn } from "@/lib/utils";
 
-import ScrollStack, { ScrollStackItem } from "./ScrollStack";
+import MobileScrollStack from "./MobileScrollStack";
+import ScrollStackDesktop from "./ScrollStackDesktop";
+import { ScrollStackItem } from "./ScrollStackItem";
 
 const platformPreview = {
   eyebrow: "Platform Preview",
@@ -93,7 +96,36 @@ function PlatformPreviewCard({
   );
 }
 
+function PreviewCards({
+  asStackItems = false,
+}: {
+  asStackItems?: boolean;
+}) {
+  return (
+    <>
+      {platformPreview.cards.map((card) => {
+        const content = (
+          <PlatformPreviewCard
+            heading={card.heading}
+            description={card.description}
+            image={assets.platformPreview[card.key]}
+          />
+        );
+
+        if (asStackItems) {
+          return <ScrollStackItem key={card.key}>{content}</ScrollStackItem>;
+        }
+
+        return <div key={card.key}>{content}</div>;
+      })}
+    </>
+  );
+}
+
 export function PlatformPreview() {
+  // Mount only the active breakpoint so desktop JS never runs on mobile.
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+
   return (
     <section
       id="platform-preview"
@@ -122,25 +154,33 @@ export function PlatformPreview() {
         </div>
 
         <div className="mt-6 sm:mt-10 md:mt-14 lg:mt-16">
-          <ScrollStack
-            useWindowScroll
-            itemDistance={120}
-            itemStackDistance={78}
-            itemScale={0.04}
-            stackPosition="12%"
-            scaleEndPosition="8%"
-            baseScale={0.86}
-          >
-            {platformPreview.cards.map((card) => (
-              <ScrollStackItem key={card.key}>
-                <PlatformPreviewCard
-                  heading={card.heading}
-                  description={card.description}
-                  image={assets.platformPreview[card.key]}
-                />
-              </ScrollStackItem>
-            ))}
-          </ScrollStack>
+          <div className="hidden lg:block">
+            {isDesktop ? (
+              <ScrollStackDesktop
+                useWindowScroll
+                itemDistance={120}
+                itemStackDistance={78}
+                itemScale={0.04}
+                stackPosition="12%"
+                scaleEndPosition="8%"
+                baseScale={0.86}
+              >
+                <PreviewCards asStackItems />
+              </ScrollStackDesktop>
+            ) : null}
+          </div>
+
+          <div className="lg:hidden">
+            {!isDesktop ? (
+              <MobileScrollStack
+                itemDistance={24}
+                itemStackDistance={14}
+                stackPosition="12%"
+              >
+                <PreviewCards />
+              </MobileScrollStack>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>
