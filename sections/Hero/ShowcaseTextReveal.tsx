@@ -17,6 +17,11 @@ function ensureScrollTriggerRegistered() {
   }
 }
 
+/** Midpoint of the 30–50% visibility window requested for the reveal. */
+const VISIBLE_RATIO = 0.4;
+
+const IO_THRESHOLDS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.75, 1];
+
 type Line = {
   text: string;
   className?: string;
@@ -25,26 +30,27 @@ type Line = {
 type ShowcaseTextRevealProps = {
   lines: Line[];
   className?: string;
-  /** The element ScrollTrigger pins — required when this text lives inside a pin. */
-  pinnedContainerRef?: React.RefObject<HTMLElement | null>;
-  /**
-   * Element whose pin scroll should drive the reveal (usually the pin trigger).
-   * When set, progress maps 1:1 to that pin's scrub range so words animate while scrolling.
-   */
-  scrollTriggerRef?: React.RefObject<HTMLElement | null>;
-  animationStart?: string;
-  /** Scroll distance after start. Prefer a string so the effect stays stable across renders. */
-  animationEnd?: string;
+  /** Reveal scrub length in px after the text becomes visible. */
+  pinDistance?: () => number;
   baseOpacity?: number;
 };
+
+function defaultPinDistance() {
+  return Math.round(window.innerHeight * 1.2);
+}
+
+function visibilityRatio(element: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  const visible =
+    Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+  if (visible <= 0) return 0;
+  return visible / Math.max(rect.height, 1);
+}
 
 export function ShowcaseTextReveal({
   lines,
   className,
-  pinnedContainerRef,
-  scrollTriggerRef,
-  animationStart = "top top+=80",
-  animationEnd = "+=120%",
+  pinDistance = defaultPinDistance,
   baseOpacity = 0.2,
 }: ShowcaseTextRevealProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -96,39 +102,56 @@ export function ShowcaseTextReveal({
     ensureScrollTriggerRegistered();
     applyProgress(0);
 
-    const pinTrigger = scrollTriggerRef?.current ?? null;
-    const pinnedContainer = pinnedContainerRef?.current ?? undefined;
+    let revealST: ScrollTrigger | null = null;
 
-    const ctx = gsap.context(() => {
-      // Drive from the pin trigger when available so progress advances for the
-      // whole pinned scrub — the text itself stays fixed in the viewport.
-      ScrollTrigger.create({
-        trigger: pinTrigger ?? root,
-        start: animationStart,
-        // Match the hero pin distance (1.2vh) so words reveal across the scrub.
-        end: pinTrigger
-          ? () => `+=${Math.round(window.innerHeight * 1.2)}`
-          : animationEnd,
+    const armReveal = () => {
+      if (revealST) return;
+
+      // Start the scrub from the moment the copy is actually on screen so the
+      // word reveal never plays ahead of visibility (e.g. during the hero pin).
+      const startScroll = window.scrollY;
+      revealST = ScrollTrigger.create({
+        start: startScroll,
+        end: () => startScroll + pinDistance(),
         scrub: true,
-        pinnedContainer: pinTrigger ? undefined : pinnedContainer,
         invalidateOnRefresh: true,
         onUpdate: (self) => applyProgress(self.progress),
         onRefresh: (self) => applyProgress(self.progress),
       });
+    };
 
+    const tryArm = () => {
+      if (visibilityRatio(root) >= VISIBLE_RATIO) armReveal();
+    };
+
+    tryArm();
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= VISIBLE_RATIO) {
+          armReveal();
+        }
+      },
+      { threshold: IO_THRESHOLDS },
+    );
+    io.observe(root);
+
+    // Re-check after pin ScrollTriggers refresh layout.
+    const onRefresh = () => tryArm();
+    ScrollTrigger.addEventListener("refresh", onRefresh);
+    requestAnimationFrame(() => {
+      tryArm();
       ScrollTrigger.refresh();
-    }, root);
+    });
 
-    return () => ctx.revert();
-  }, [
-    animationEnd,
-    animationStart,
-    baseOpacity,
-    pinnedContainerRef,
-    prefersReducedMotion,
-    scrollTriggerRef,
-    totalWords,
-  ]);
+    return () => {
+      io.disconnect();
+      ScrollTrigger.removeEventListener("refresh", onRefresh);
+      revealST?.kill();
+    };
+  }, [baseOpacity, pinDistance, prefersReducedMotion, totalWords]);
 
   return (
     <div ref={rootRef} className={className}>

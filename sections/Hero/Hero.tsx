@@ -50,7 +50,7 @@ function ensureScrollTriggerRegistered() {
 }
 
 function getScrollDistance() {
-  return window.innerHeight * 1.2;
+  return Math.round(window.innerHeight * 1.2);
 }
 
 function MobileShowcase() {
@@ -139,9 +139,7 @@ function MobileShowcase() {
 
         <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
           <ShowcaseTextReveal
-            pinnedContainerRef={pinRef}
-            scrollTriggerRef={sectionRef}
-            animationStart="top top+=80"
+            pinDistance={getScrollDistance}
             baseOpacity={0.2}
             lines={[
             { text: hero.showcase.heading, className: "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground" },
@@ -296,42 +294,41 @@ export function Hero() {
       aria-labelledby="hero-heading"
       className="relative overflow-x-hidden bg-background"
     >
-      <div
-        ref={gradientRef}
-        aria-hidden
-        className="pointer-events-none absolute top-0 right-0 z-[1] w-[min(62vw,22rem)] sm:w-[min(48vw,28rem)] md:w-[min(40vw,32rem)]"
-      >
-        <Image
-          src={assets.heroGradient.src}
-          alt=""
-          width={assets.heroGradient.width}
-          height={assets.heroGradient.height}
-          sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
-          priority
-          className="h-auto w-full mix-blend-screen"
-        />
-      </div>
+      {/* Full-bleed pin wrapper so the corner glow stays fixed with the hero. */}
+      <div ref={pinRef} className="relative w-full">
+        <div
+          ref={gradientRef}
+          aria-hidden
+          className="pointer-events-none absolute top-0 right-0 z-[1] w-[min(62vw,22rem)] sm:w-[min(48vw,28rem)] md:w-[min(40vw,32rem)]"
+        >
+          <Image
+            src={assets.heroGradient.src}
+            alt=""
+            width={assets.heroGradient.width}
+            height={assets.heroGradient.height}
+            sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
+            priority
+            className="h-auto w-full mix-blend-screen"
+          />
+        </div>
 
-      <div
-        ref={pinRef}
-        className="container-content relative z-10 flex flex-col items-center px-4 pt-6 pb-2 text-center sm:px-5 sm:pt-8 sm:pb-3 md:px-6 md:pt-12 md:pb-4 xl:px-0 xl:pt-14 xl:pb-4"
-      >
-        <div ref={headerRef} className="flex flex-col items-center pb-0 md:pb-5 xl:pb-6">
+        <div className="container-content relative z-10 flex flex-col items-center px-4 pt-6 pb-2 text-center sm:px-5 sm:pt-8 sm:pb-3 md:px-6 md:pt-12 md:pb-4 xl:px-0 xl:pt-8 xl:pb-2 2xl:pt-14 2xl:pb-4">
+        <div ref={headerRef} className="flex flex-col items-center pb-0 md:pb-5 xl:pb-2 2xl:pb-6">
           <h1
             id="hero-heading"
-            className="text-hero max-w-[min(100%,var(--container-narrow))]"
+            className="text-hero max-w-[min(100%,var(--container-narrow))] xl:text-[clamp(2.5rem,4.2vw+0.6rem,3.75rem)] 2xl:text-[length:clamp(2.375rem,6.5vw+0.75rem,var(--text-hero-size))]"
           >
             <span className="block text-foreground">{hero.headline.line1}</span>
             <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">{hero.headline.line2}</span>
           </h1>
 
-          <p className="text-body-large mt-2.5 max-w-[min(100%,var(--container-narrow))]">
+          <p className="text-body-large mt-2.5 max-w-[min(100%,var(--container-narrow))] xl:mt-1.5 xl:text-[0.9375rem] xl:leading-snug 2xl:mt-2.5 2xl:text-[length:clamp(0.875rem,1.5vw+0.5rem,var(--text-body-large-size))] 2xl:leading-[var(--text-body-large-leading)]">
             <span className="block">{hero.description.line1}</span>
             <span className="block">{hero.description.line2}</span>
           </p>
 
           <div
-            className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5"
+            className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5 xl:mt-4 2xl:mt-7"
             role="group"
             aria-label="Hero actions"
           >
@@ -366,24 +363,22 @@ export function Hero() {
 
         <MobileShowcase />
 
-        <div className="relative mt-28 hidden w-full max-w-[87.5rem] pb-0 xl:mt-44 xl:block">
+        <div className="relative mx-auto mt-28 hidden w-full max-w-[87.5rem] pb-0 xl:mt-12 xl:block xl:max-w-[68rem] 2xl:mt-44 2xl:max-w-[87.5rem]">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[44%] left-[6%] right-[6%] z-40 text-left">
+            <div className="absolute top-[34%] left-[6%] right-[6%] z-40 text-left 2xl:top-[44%]">
               <ShowcaseTextReveal
-                pinnedContainerRef={pinRef}
-                scrollTriggerRef={sectionRef}
-                animationStart={`top top+=${PIN_OFFSET_PX}`}
+                pinDistance={getScrollDistance}
                 baseOpacity={0.2}
                 lines={[
                   {
                     text: hero.showcase.heading,
                     className:
-                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] sm:leading-none",
+                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[length:clamp(1.15rem,3.1vw+0.4rem,2.65rem)] sm:leading-none 2xl:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))]",
                   },
                   {
                     text: hero.showcase.description,
                     className:
-                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground-muted sm:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))] sm:leading-none",
+                      "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground-muted sm:text-[length:clamp(1.15rem,3.1vw+0.4rem,2.65rem)] sm:leading-none 2xl:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))]",
                   },
                 ]}
               />
@@ -415,7 +410,7 @@ export function Hero() {
 
             <div
               ref={iphoneRef}
-              className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 translate-y-[50px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
+              className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 translate-y-[50px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[260px] xl:top-[-160px] 2xl:w-[300px] 2xl:top-[-190px]"
             >
               <div
                 aria-hidden
@@ -493,21 +488,21 @@ export function Hero() {
               </div>
             </div>
 
-            <FolderFlap className="bottom-0 z-30 w-full translate-y-12" />
+            <FolderFlap className="bottom-0 z-30 w-full translate-y-8 2xl:translate-y-12" />
           </div>
 
-          {/* Bottom dissolve — covers the folder overhang (translate-y-12) into the page */}
+          {/* Bottom dissolve — covers the folder overhang into the page */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 -bottom-20 z-[45] h-56 sm:h-60 md:h-64"
+            className="pointer-events-none absolute inset-x-0 -bottom-16 z-[45] h-48 2xl:-bottom-20 2xl:h-64"
             style={{
               background:
                 "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 35%, transparent) 28%, color-mix(in srgb, var(--color-background) 80%, transparent) 55%, var(--color-background) 82%, var(--color-background) 100%)",
             }}
           />
         </div>
+        </div>
       </div>
     </section>
-    
   );
 }
