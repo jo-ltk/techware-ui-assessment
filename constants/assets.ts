@@ -119,6 +119,12 @@ export const assets = {
       height: 2454,
       alt: "Verify Global mobile app on iPhone",
     },
+    iphoneGlow: {
+      src: "/assets/iphone-glow.svg",
+      width: 865,
+      height: 924,
+      alt: "",
+    },
     folderTop: {
       src: "/assets/folder-top.svg",
       maskSrc: "/assets/folder-top-mask.svg",

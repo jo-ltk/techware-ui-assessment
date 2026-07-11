@@ -105,7 +105,10 @@ function MobileShowcase() {
     <div ref={sectionRef} className="relative mt-8 block w-full max-w-[44rem] xl:hidden">
       <div ref={pinRef} className="relative aspect-[1/1.28] w-full">
         <div ref={phoneRef} className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] will-change-transform">
-          <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="w-full" />
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2">
+            <Image src={assets.heroShowcase.iphoneGlow.src} alt="" width={assets.heroShowcase.iphoneGlow.width} height={assets.heroShowcase.iphoneGlow.height} className="h-auto w-full" />
+          </div>
+          <Image src={assets.heroShowcase.iphone.src} alt={assets.heroShowcase.iphone.alt} width={assets.heroShowcase.iphone.width} height={assets.heroShowcase.iphone.height} priority className="relative z-10 w-full" />
         </div>
 
         <div ref={leftCardRef} className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
@@ -394,13 +397,25 @@ export function Hero() {
               ref={iphoneRef}
               className="absolute left-1/2 z-20 w-[120px] top-[-70px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
             >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2"
+              >
+                <Image
+                  src={assets.heroShowcase.iphoneGlow.src}
+                  alt=""
+                  width={assets.heroShowcase.iphoneGlow.width}
+                  height={assets.heroShowcase.iphoneGlow.height}
+                  className="h-auto w-full"
+                />
+              </div>
               <Image
                 src={assets.heroShowcase.iphone.src}
                 alt={assets.heroShowcase.iphone.alt}
                 width={assets.heroShowcase.iphone.width}
                 height={assets.heroShowcase.iphone.height}
                 priority
-                className="w-full"
+                className="relative z-10 w-full"
               />
             </div>
 
