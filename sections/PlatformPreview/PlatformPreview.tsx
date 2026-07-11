@@ -164,12 +164,12 @@ export function PlatformPreview() {
             {!isDesktop ? (
               <MobileScrollStack
                 useWindowScroll
-                itemDistance={100}
-                itemStackDistance={30}
+                itemDistance={80}
+                itemStackDistance={28}
                 itemScale={0.03}
-                stackPosition="20%"
+                stackPosition="18%"
                 scaleEndPosition="10%"
-                baseScale={0.85}
+                baseScale={0.88}
               >
                 <PreviewCards />
               </MobileScrollStack>
