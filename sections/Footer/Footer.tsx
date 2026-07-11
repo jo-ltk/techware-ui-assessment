@@ -133,15 +133,15 @@ export function Footer() {
           <div className="relative z-10 flex min-h-[inherit] flex-col p-5 sm:p-10 md:p-12 lg:p-14">
             <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-12 md:grid-cols-4">
               <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
                   {footerLinks.product.title}
                 </h3>
-                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
                   {footerLinks.product.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white sm:text-[length:var(--font-size-md)]"
                       >
                         {link.label}
                       </a>
@@ -151,15 +151,15 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
                   {footerLinks.company.title}
                 </h3>
-                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
                   {footerLinks.company.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white"
+                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white sm:text-[length:var(--font-size-md)]"
                       >
                         {link.label}
                       </a>
@@ -169,16 +169,16 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
                   {contact.title}
                 </h3>
-                <ul className="mt-4 flex flex-col gap-2.5 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
                   {contact.items.map((item) => (
                     <li
                       key={item.label}
-                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/75"
+                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 sm:text-[length:var(--font-size-md)]"
                     >
-                      <item.icon className="size-3.5 shrink-0" aria-hidden />
+                      <item.icon className="size-3 shrink-0 sm:size-3.5" aria-hidden />
                       {item.label}
                     </li>
                   ))}
@@ -186,10 +186,10 @@ export function Footer() {
               </div>
 
               <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-xl)] font-normal leading-none tracking-[-0.03em] text-white">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
                   {connect.title}
                 </h3>
-                <div className="mt-4 flex items-center gap-3 sm:mt-5">
+                <div className="mt-3 flex items-center gap-2.5 sm:mt-5 sm:gap-3">
                   {connect.links.map((link) => (
                     <a
                       key={link.label}
@@ -205,7 +205,7 @@ export function Footer() {
                         width={link.icon.width}
                         height={link.icon.height}
                         sizes="30px"
-                        className="size-[30px]"
+                        className="size-6 sm:size-[30px]"
                         aria-hidden
                       />
                     </a>
@@ -214,7 +214,7 @@ export function Footer() {
               </div>
             </div>
 
-            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[length:var(--font-size-md)] font-normal leading-none tracking-[-0.03em] text-white/60 sm:pt-16">
+            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[0.75rem] font-normal leading-none tracking-[-0.03em] text-white/60 sm:pt-16 sm:text-[length:var(--font-size-md)]">
               © 2026 Lorem.app. All rights reserved.
             </p>
           </div>
