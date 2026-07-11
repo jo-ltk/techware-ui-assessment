@@ -214,7 +214,7 @@ export function WhoItsFor() {
       >
         <div
           aria-hidden
-          className="pointer-events-none absolute bottom-0 -left-4 z-[1] w-[min(62vw,22rem)] sm:-left-5 sm:w-[min(48vw,28rem)] md:-left-6 md:w-[min(40vw,32rem)]"
+          className="pointer-events-none absolute bottom-0 -left-4 z-[1] w-[min(62vw,22rem)] max-md:bottom-auto max-md:top-0 sm:-left-5 sm:w-[min(48vw,28rem)] md:bottom-0 md:top-auto md:-left-6 md:w-[min(40vw,32rem)]"
         >
           <Image
             src={assets.whoItsFor.gradient.src}

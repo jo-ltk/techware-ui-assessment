@@ -120,7 +120,7 @@ export function PlatformPreview() {
     <section
       id="platform-preview"
       aria-labelledby="platform-preview-heading"
-      className="overflow-x-hidden bg-background px-4 pt-6 pb-8 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:pt-12 lg:pb-12"
+      className="bg-background px-4 pt-6 pb-8 sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 lg:overflow-x-hidden lg:pt-12 lg:pb-12"
     >
       <div className="container-content">
         <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
@@ -162,15 +162,7 @@ export function PlatformPreview() {
 
           <div className="lg:hidden">
             {!isDesktop ? (
-              <MobileScrollStack
-                useWindowScroll
-                itemDistance={80}
-                itemStackDistance={28}
-                itemScale={0.03}
-                stackPosition="18%"
-                scaleEndPosition="10%"
-                baseScale={0.88}
-              >
+              <MobileScrollStack>
                 <PreviewCards />
               </MobileScrollStack>
             ) : null}
