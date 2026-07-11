@@ -124,12 +124,12 @@ export function PlatformPreview() {
         <div className="mt-6 sm:mt-10 md:mt-14 lg:mt-16">
           <ScrollStack
             useWindowScroll
-            itemDistance={100}
-            itemStackDistance={30}
-            itemScale={0.03}
-            stackPosition="15%"
-            scaleEndPosition="10%"
-            baseScale={0.85}
+            itemDistance={120}
+            itemStackDistance={78}
+            itemScale={0.04}
+            stackPosition="12%"
+            scaleEndPosition="8%"
+            baseScale={0.86}
           >
             {platformPreview.cards.map((card) => (
               <ScrollStackItem key={card.key}>
