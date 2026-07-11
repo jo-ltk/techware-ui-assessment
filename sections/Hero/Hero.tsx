@@ -104,7 +104,7 @@ function MobileShowcase() {
   return (
     <div ref={sectionRef} className="relative mt-8 block w-full max-w-[44rem] xl:hidden">
       <div ref={pinRef} className="relative aspect-[1/1.28] w-full">
-        <div ref={phoneRef} className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] will-change-transform">
+        <div ref={phoneRef} className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] -translate-x-1/2 translate-y-[110px] will-change-transform">
           <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2">
             <Image src={assets.heroShowcase.iphoneGlow.src} alt="" width={assets.heroShowcase.iphoneGlow.width} height={assets.heroShowcase.iphoneGlow.height} className="h-auto w-full" />
           </div>
@@ -119,7 +119,7 @@ function MobileShowcase() {
           />
         </div>
 
-        <div ref={leftCardRef} className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
+        <div ref={leftCardRef} className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
           <div className="flex w-[18%] shrink-0 flex-col items-center">{assets.heroShowcase.avatars.map((avatar, index) => <Image key={avatar.src} src={avatar.src} alt={avatar.alt} width={avatar.width} height={avatar.height} sizes="48px" className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`} style={{ zIndex: index + 1 }} />)}</div>
           <div className="min-w-0 flex-1 text-left">
             <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">{hero.showcase.stats.left.value}</p>
@@ -127,7 +127,7 @@ function MobileShowcase() {
           </div>
         </div>
 
-        <div ref={rightCardRef} className="@container absolute -top-[10%] right-[8%] z-50 flex w-[min(38%,11rem)] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
+        <div ref={rightCardRef} className="@container absolute -top-[10%] right-[8%] z-50 flex w-[min(38%,11rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform">
           <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
             <Image src={assets.icons.shield} alt="" width={24} height={24} aria-hidden className="size-[52%]" />
           </div>
@@ -415,7 +415,7 @@ export function Hero() {
 
             <div
               ref={iphoneRef}
-              className="absolute left-1/2 z-20 w-[120px] top-[-70px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
+              className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 translate-y-[50px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[300px]"
             >
               <div
                 aria-hidden
@@ -442,7 +442,7 @@ export function Hero() {
 
             <div
               ref={leftStatRef}
-              className="absolute top-[-4%] left-[2%] z-50 flex h-[80px] w-[150px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:top-[-7%] sm:left-[14%] sm:h-[122px] sm:w-[246px] sm:gap-3 sm:rounded-[1.75rem] sm:p-3.5 md:left-[21%] md:top-[-20%]"
+              className="absolute top-[-4%] left-[2%] z-50 flex h-[80px] w-[150px] translate-y-[70px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:top-[-7%] sm:left-[14%] sm:h-[122px] sm:w-[246px] sm:gap-3 sm:rounded-[1.75rem] sm:p-3.5 md:left-[21%] md:top-[-20%]"
             >
               <div className="flex w-5 shrink-0 flex-col items-center justify-center sm:w-7">
                 {assets.heroShowcase.avatars.map((avatar, index) => (
@@ -470,7 +470,7 @@ export function Hero() {
 
             <div
               ref={rightStatRef}
-              className="absolute -top-[5%] right-[2%] z-50 flex max-w-[150px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:-top-[10%] sm:right-[10%] sm:max-w-[min(75vw,18rem)] sm:gap-3 sm:rounded-[1.75rem] sm:p-3 md:right-[14%] md:max-w-[20rem] md:gap-4 md:p-4 lg:max-w-[22rem] lg:gap-5 lg:p-5"
+              className="absolute -top-[5%] right-[2%] z-50 flex max-w-[150px] translate-y-[90px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:-top-[10%] sm:right-[10%] sm:max-w-[min(75vw,18rem)] sm:gap-3 sm:rounded-[1.75rem] sm:p-3 md:right-[14%] md:max-w-[20rem] md:gap-4 md:p-4 lg:max-w-[22rem] lg:gap-5 lg:p-5"
             >
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30 sm:size-11 md:size-12 lg:size-14">
                 <Image
