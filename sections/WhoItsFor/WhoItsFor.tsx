@@ -66,7 +66,8 @@ function ensureScrollTriggerRegistered() {
 }
 
 function getScrollDistance() {
-  return window.innerHeight * ROTATIONS * 1.5;
+  // Keep enough scrub room for one orbit turn without a full extra viewport of dead space.
+  return window.innerHeight * 0.55;
 }
 
 function getOrbitAngle(index: number) {
@@ -158,11 +159,11 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="solution"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-hidden bg-background px-4 pt-0 pb-4 text-center sm:px-5 sm:pb-6 md:px-6 md:pt-2 md:pb-8"
+      className="relative overflow-x-hidden bg-background px-4 pt-6 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10"
     >
       <div
         ref={pinRef}
-        className="relative z-10 flex min-h-[calc(100vh-6rem)] flex-col items-center justify-center overflow-visible pt-0 sm:pt-1 md:pt-2"
+        className="relative z-10 flex flex-col items-center overflow-visible"
       >
         <div
           aria-hidden
@@ -194,7 +195,7 @@ export function WhoItsFor() {
           {whoItsFor.description}
         </p>
 
-        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-3 pb-2 sm:mt-6 sm:px-2 sm:pt-5 sm:pb-4 md:mt-8 md:px-0 md:pt-6 md:pb-6">
+        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-2 pb-2 sm:mt-5 sm:px-2 sm:pt-3 sm:pb-3 md:mt-6 md:px-0 md:pt-4 md:pb-4">
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
