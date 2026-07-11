@@ -4,15 +4,6 @@ import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  Briefcase,
-  GraduationCap,
-  Landmark,
-  Scale,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-
 import { assets } from "@/constants";
 import { useReducedMotion } from "@/hooks";
 
@@ -22,17 +13,34 @@ const whoItsFor = {
   description: "Wherever credentials matter, Lorem handles the verification",
 } as const;
 
+type IndustryIcon = (typeof assets.whoItsFor.industries)[keyof typeof assets.whoItsFor.industries];
+
 type Industry = {
   label: string;
-  Icon: LucideIcon;
+  icon: IndustryIcon;
 };
 
 const industries: Industry[] = [
-  { label: "Compliance & Mobility Teams", Icon: Users },
-  { label: "Immigration Law Firms", Icon: Scale },
-  { label: "Financial Institutions", Icon: Landmark },
-  { label: "Universities & Training Institutes", Icon: GraduationCap },
-  { label: "HR & Recruitment Firms", Icon: Briefcase },
+  {
+    label: "Compliance & Mobility Teams",
+    icon: assets.whoItsFor.industries.compliance,
+  },
+  {
+    label: "Immigration Law Firms",
+    icon: assets.whoItsFor.industries.immigration,
+  },
+  {
+    label: "Financial Institutions",
+    icon: assets.whoItsFor.industries.financial,
+  },
+  {
+    label: "Universities & Training Institutes",
+    icon: assets.whoItsFor.industries.universities,
+  },
+  {
+    label: "HR & Recruitment Firms",
+    icon: assets.whoItsFor.industries.hr,
+  },
 ];
 
 // Orbit pivot aligned to the SVG core (ellipse cx/cy + logo center).
@@ -170,19 +178,19 @@ export function WhoItsFor() {
         </div>
 
         <div className="container-content relative z-10 flex flex-col items-center">
-        <p className="text-label inline-flex items-center justify-center gap-1 text-[0.75rem] font-medium sm:text-[length:var(--text-label-size)]">
+        <p className="inline-flex items-center justify-center gap-1 font-sans text-[length:var(--text-label-size)] font-normal leading-none tracking-[var(--letter-spacing-badge)] text-accent">
           <span aria-hidden className="size-1 rounded-full bg-accent" />
           {whoItsFor.eyebrow}
         </p>
 
         <h2
           id="who-its-for-heading"
-          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-[1.15] tracking-[var(--text-section-title-tracking)] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] sm:leading-none md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)]"
+          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-none tracking-[-0.03em] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)]"
         >
           {whoItsFor.heading}
         </h2>
 
-        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] leading-snug text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] sm:leading-normal md:max-w-[36rem] md:text-[length:var(--text-body-size)]">
+        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] font-normal leading-none tracking-normal text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] md:max-w-[36rem] md:text-[length:var(--text-body-large-size)]">
           {whoItsFor.description}
         </p>
 
@@ -253,14 +261,21 @@ export function WhoItsFor() {
 }
 
 function OrbitCard({ industry }: { industry: Industry }) {
-  const { Icon, label } = industry;
+  const { icon, label } = industry;
 
   return (
     <div className="flex w-max max-w-[13rem] items-center gap-3 rounded-pill border-2 border-white bg-surface-glass-strong px-4 py-3 text-left shadow-subtle backdrop-blur-[6px]">
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full text-accent-strong">
-        <Icon aria-hidden className="size-5" strokeWidth={1.75} />
+      <span className="flex size-8 shrink-0 items-center justify-center">
+        <Image
+          src={icon.src}
+          alt=""
+          width={icon.width}
+          height={icon.height}
+          aria-hidden
+          className="h-5 w-auto"
+        />
       </span>
-      <span className="text-[0.9375rem] font-medium leading-tight tracking-[-0.02em] text-foreground-muted">
+      <span className="font-sans text-[length:var(--font-size-lg)] font-normal leading-none tracking-[-0.03em] text-foreground-muted">
         {label}
       </span>
     </div>

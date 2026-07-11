@@ -24,6 +24,38 @@ export const assets = {
       height: 618,
       alt: "",
     },
+    industries: {
+      compliance: {
+        src: "/assets/industry-compliance.svg",
+        width: 38,
+        height: 23,
+        alt: "",
+      },
+      immigration: {
+        src: "/assets/industry-immigration.svg",
+        width: 44,
+        height: 44,
+        alt: "",
+      },
+      financial: {
+        src: "/assets/industry-financial.svg",
+        width: 44,
+        height: 44,
+        alt: "",
+      },
+      universities: {
+        src: "/assets/industry-universities.svg",
+        width: 44,
+        height: 44,
+        alt: "",
+      },
+      hr: {
+        src: "/assets/industry-hr.svg",
+        width: 44,
+        height: 44,
+        alt: "",
+      },
+    },
     width: 866,
     height: 618,
     alt: "Industry workflows connected around verified credentials",

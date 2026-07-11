@@ -342,7 +342,7 @@ export function Hero() {
 
         <div className="relative mt-28 hidden w-full max-w-[87.5rem] pb-0 xl:mt-44 xl:block">
           <div className="relative aspect-[1400/1078] w-full">
-            <div className="absolute top-[36%] left-[6%] right-[6%] z-40 text-left">
+            <div className="absolute top-[44%] left-[6%] right-[6%] z-40 text-left">
               <ShowcaseTextReveal
                 pinnedContainerRef={pinRef}
                 animationStart="center center"
