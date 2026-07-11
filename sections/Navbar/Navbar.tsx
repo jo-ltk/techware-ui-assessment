@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 
-import { assets, navigation, site } from "@/constants";
+import { assets, navigation } from "@/constants";
 import { NAV_SECTION_IDS } from "@/constants/navigation";
 import { useReducedMotion, useScrollSpy } from "@/hooks";
 import { cn, getFocusableElements, scrollToElement, trapFocus } from "@/utils";
@@ -98,26 +98,34 @@ export function Navbar() {
       <nav
         aria-label="Main navigation"
         className={cn(
-          "mx-auto flex w-full items-center justify-between gap-4 rounded-pill border-2 px-4 py-1.5 transition-[var(--transition-common)]",
-          "min-h-[2.75rem] xl:h-[3.6875rem] xl:min-h-[3.6875rem] xl:py-0",
+          "mx-auto flex w-full items-center justify-between gap-3 rounded-pill border-2 px-3 py-1.5 transition-[var(--transition-common)] sm:gap-4 sm:px-4",
+          "min-h-[3rem] xl:h-[3.6875rem] xl:min-h-[3.6875rem] xl:py-0",
           "border-border-strong bg-background-elevated shadow-subtle",
         )}
       >
         <a
           href="#hero"
           onClick={handleLogoClick}
-          className="flex h-6 shrink-0 items-center xl:h-7"
-          aria-label={`${site.name} home`}
+          className="flex shrink-0 items-center gap-2.5"
+          aria-label="Techware home"
         >
-          <Image
-            src={assets.logo.src}
-            alt=""
-            width={assets.logo.width}
-            height={assets.logo.height}
-            priority
-            aria-hidden
-            className="block h-full w-auto object-contain"
-          />
+          <span className="relative flex size-7 items-center justify-center xl:size-8">
+            <Image
+              src={assets.logo.src}
+              alt=""
+              width={assets.logo.width}
+              height={assets.logo.height}
+              priority
+              aria-hidden
+              className="block h-full w-auto object-contain"
+            />
+          </span>
+          <span className="text-[0.9375rem] font-medium tracking-[-0.03em] text-foreground xl:hidden">
+            Tech
+            <span className="bg-[image:var(--gradient-gold-text)] bg-clip-text text-transparent">
+              ware
+            </span>
+          </span>
         </a>
 
         <ul className="hidden flex-1 items-center justify-center gap-6 xl:flex">
@@ -157,7 +165,11 @@ export function Navbar() {
               ref={menuButtonRef}
               type="button"
               onClick={toggleMenu}
-              className="inline-flex size-8 items-center justify-center rounded-full text-foreground motion-safe-transition hover:bg-background-muted"
+              className={cn(
+                "inline-flex size-7 items-center justify-center rounded-full border border-border bg-background-muted text-foreground motion-safe-transition",
+                "hover:border-accent/40 hover:bg-accent/10 hover:text-accent-emphasis",
+                isMenuOpen && "border-accent/40 bg-accent/10 text-accent-emphasis",
+              )}
               aria-expanded={isMenuOpen}
               aria-controls={drawerTitleId}
               aria-label={
@@ -165,9 +177,9 @@ export function Navbar() {
               }
             >
               {isMenuOpen ? (
-                <X aria-hidden className="size-4" strokeWidth={1.75} />
+                <X aria-hidden className="size-3.5" strokeWidth={1.75} />
               ) : (
-                <Menu aria-hidden className="size-4" strokeWidth={1.75} />
+                <Menu aria-hidden className="size-3.5" strokeWidth={1.75} />
               )}
             </button>
 
@@ -191,27 +203,45 @@ export function Navbar() {
               aria-hidden={!isMenuOpen}
               inert={!isMenuOpen ? true : undefined}
               className={cn(
-                "fixed inset-y-0 right-0 z-[200] flex w-full flex-col gap-8 border-l-2 border-border-strong bg-background-elevated p-6 shadow-glass-elevated",
+                "fixed inset-y-0 right-0 z-[200] flex w-[min(100%,18rem)] flex-col border-l border-border bg-background-elevated shadow-glass-elevated",
                 !prefersReducedMotion &&
                   "transition-transform duration-[var(--duration-moderate)] ease-[var(--ease-emphasized)]",
                 !isMenuOpen && "pointer-events-none",
                 isMenuOpen ? "translate-x-0" : "translate-x-full",
               )}
             >
-              <div className="flex items-center justify-between">
-                <p className="text-nav font-medium text-foreground">Menu</p>
+              <div className="flex items-center justify-between gap-3 border-b border-border px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-3">
+                <div className="flex items-center gap-2.5">
+                  <Image
+                    src={assets.logo.src}
+                    alt=""
+                    width={assets.logo.width}
+                    height={assets.logo.height}
+                    aria-hidden
+                    className="block h-6 w-auto object-contain"
+                  />
+                  <p className="text-[0.9375rem] font-medium tracking-[-0.03em] text-foreground">
+                    Tech
+                    <span className="bg-[image:var(--gradient-gold-text)] bg-clip-text text-transparent">
+                      ware
+                    </span>
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={closeMenu}
-                  className="inline-flex size-10 items-center justify-center rounded-full text-foreground motion-safe-transition hover:bg-background-muted"
+                  className="inline-flex size-7 items-center justify-center rounded-full border border-border bg-background-muted text-foreground motion-safe-transition hover:border-accent/40 hover:bg-accent/10 hover:text-accent-emphasis"
                   aria-label="Close navigation menu"
                 >
-                  <X aria-hidden className="size-5" strokeWidth={1.75} />
+                  <X aria-hidden className="size-3.5" strokeWidth={1.75} />
                 </button>
               </div>
 
-              <nav aria-label="Mobile navigation links">
-                <ul className="flex flex-col gap-4">
+              <nav
+                aria-label="Mobile navigation links"
+                className="flex-1 overflow-y-auto px-3 py-3"
+              >
+                <ul className="flex flex-col gap-1">
                   {navigation.links.map((link) => {
                     const isActive = activeSectionId === link.sectionId;
 
@@ -222,9 +252,9 @@ export function Navbar() {
                           onClick={(event) => handleLinkClick(event, link.href)}
                           tabIndex={isMenuOpen ? undefined : -1}
                           className={cn(
-                            "text-nav text-foreground-disabled transition-[var(--transition-color)] hover:text-foreground",
+                            "text-nav flex w-full items-center rounded-xl px-3 py-2.5 text-foreground-muted transition-[var(--transition-common)] hover:bg-background-muted hover:text-foreground",
                             isActive &&
-                              "text-accent-emphasis hover:text-accent-emphasis",
+                              "bg-accent/10 font-medium text-accent-emphasis hover:bg-accent/10 hover:text-accent-emphasis",
                           )}
                           aria-current={isActive ? "page" : undefined}
                         >
@@ -236,19 +266,21 @@ export function Navbar() {
                 </ul>
               </nav>
 
-              <a
-                href={navigation.signIn.href}
-                onClick={handleSignInClick}
-                tabIndex={isMenuOpen ? undefined : -1}
-                className="text-button inline-flex w-full items-center justify-center gap-2 rounded-pill bg-[image:var(--gradient-nav-button)] px-5 py-2 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92"
-              >
-                {navigation.signIn.label}
-                <ArrowUpRight
-                  aria-hidden
-                  className="size-3.5"
-                  strokeWidth={2.25}
-                />
-              </a>
+              <div className="border-t border-border px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <a
+                  href={navigation.signIn.href}
+                  onClick={handleSignInClick}
+                  tabIndex={isMenuOpen ? undefined : -1}
+                  className="text-button inline-flex h-8 items-center justify-center gap-1 rounded-full bg-[image:var(--gradient-nav-button)] px-3.5 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92"
+                >
+                  {navigation.signIn.label}
+                  <ArrowUpRight
+                    aria-hidden
+                    className="size-3"
+                    strokeWidth={2.25}
+                  />
+                </a>
+              </div>
             </aside>
           </div>
         </div>

@@ -195,7 +195,7 @@ export function WhoItsFor() {
           {whoItsFor.description}
         </p>
 
-        <div className="relative mt-4 w-full max-w-[54.125rem] overflow-visible px-1 pt-2 pb-2 sm:mt-5 sm:px-2 sm:pt-3 sm:pb-3 md:mt-6 md:px-0 md:pt-4 md:pb-4">
+        <div className="relative mt-7 w-full max-w-[54.125rem] overflow-visible px-1 pt-2 pb-2 sm:mt-7 sm:px-2 sm:pt-3 sm:pb-3 md:mt-8 md:px-0 md:pt-4 md:pb-4">
           <div
             ref={containerRef}
             className="relative mx-auto aspect-[866/618] w-full overflow-visible"
@@ -276,7 +276,7 @@ function OrbitCard({ industry }: { industry: Industry }) {
           className="h-5 w-auto"
         />
       </span>
-      <span className="font-sans text-[length:var(--font-size-lg)] font-normal leading-none tracking-[-0.03em] text-foreground-muted">
+      <span className="font-sans text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-foreground-muted sm:text-[0.875rem] md:text-[0.9375rem]">
         {label}
       </span>
     </div>

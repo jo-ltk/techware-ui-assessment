@@ -297,7 +297,7 @@ export function Hero() {
 
       <div
         ref={pinRef}
-        className="container-content relative z-10 flex flex-col items-center px-5 pt-8 pb-2 text-center sm:px-6 sm:pt-10 sm:pb-3 md:pt-12 md:pb-4 xl:px-0 xl:pt-14 xl:pb-4"
+        className="container-content relative z-10 flex flex-col items-center px-4 pt-6 pb-2 text-center sm:px-5 sm:pt-8 sm:pb-3 md:px-6 md:pt-12 md:pb-4 xl:px-0 xl:pt-14 xl:pb-4"
       >
         <div ref={headerRef} className="flex flex-col items-center pb-0 md:pb-5 xl:pb-6">
           <h1
