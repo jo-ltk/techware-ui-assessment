@@ -28,8 +28,8 @@ You need **Node.js 20** (or newer) installed first.
 
 ## Live preview
 
-- **Website link:** _(add your Vercel / Netlify link here)_
-- **Video of the animations:** _(add a short screen recording link here)_
+- **Deploy link:** [https://techware-ui-assessment.vercel.app/](https://techware-ui-assessment.vercel.app/)
+- **Screen recording:** [https://drive.google.com/file/d/1a3IKH4ElRoPl6-DU2fk2K-Tj-_zGaME7/view?usp=sharing](https://drive.google.com/file/d/1a3IKH4ElRoPl6-DU2fk2K-Tj-_zGaME7/view?usp=sharing)
 
 ---
 
@@ -96,7 +96,7 @@ When the design was unclear, I made a clear choice and wrote it here.
 - Older / slower phones may feel the scroll animations a bit heavy.
 - Figma and the real website are not always an exact copy of every curve — I matched the **feel** by eye.
 - Some text is still placeholder (“lorem”) where the brief used filler text.
-- Please add the live link and a short video in the **Live preview** section before you submit.
+- Live deploy and screen recording links are in the **Live preview** section above.
 
 ---
 
