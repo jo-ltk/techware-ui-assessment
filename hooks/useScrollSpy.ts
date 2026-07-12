@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from "react";
 const SCROLL_SPY_PROBE_RATIO = 0.28;
 
 /** Hero pin journey: Home → Solution (stats) → Process (showcase copy). */
-const HERO_SOLUTION_PROGRESS = 0.22;
-const HERO_PROCESS_PROGRESS = 0.55;
+const HERO_SOLUTION_PROGRESS = 0.2;
+const HERO_PROCESS_PROGRESS = 0.68;
 
 const HERO_GROUP = new Set(["hero", "solution", "process"]);
 

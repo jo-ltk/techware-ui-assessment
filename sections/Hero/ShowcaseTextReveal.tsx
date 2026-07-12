@@ -1,6 +1,12 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
+import {
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  type Ref,
+} from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -27,12 +33,22 @@ type Line = {
   className?: string;
 };
 
+export type ShowcaseTextRevealHandle = {
+  setProgress: (progress: number) => void;
+};
+
 type ShowcaseTextRevealProps = {
   lines: Line[];
   className?: string;
   /** Reveal scrub length in px after the text becomes visible. */
   pinDistance?: () => number;
   baseOpacity?: number;
+  /**
+   * When true, parent drives reveal via ref.setProgress.
+   * Skips the independent ScrollTrigger so scene sequencing stays exclusive.
+   */
+  controlled?: boolean;
+  ref?: Ref<ShowcaseTextRevealHandle | null>;
 };
 
 function defaultPinDistance() {
@@ -52,6 +68,8 @@ export function ShowcaseTextReveal({
   className,
   pinDistance = defaultPinDistance,
   baseOpacity = 0.2,
+  controlled = false,
+  ref,
 }: ShowcaseTextRevealProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const wordEls = useRef<(HTMLSpanElement | null)[]>([]);
@@ -79,28 +97,44 @@ export function ShowcaseTextReveal({
 
   const totalWords = flatWords.length;
 
+  const applyProgress = (progress: number) => {
+    for (let i = 0; i < totalWords; i++) {
+      const el = wordEls.current[i];
+      if (!el) continue;
+      const opacity = wordRevealOpacity(progress, i, totalWords);
+      const mapped =
+        baseOpacity + ((opacity - 0.12) / 0.88) * (1 - baseOpacity);
+      el.style.opacity = String(mapped);
+    }
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      setProgress: (progress: number) => {
+        applyProgress(Math.min(1, Math.max(0, progress)));
+      },
+    }),
+    // applyProgress closes over totalWords/baseOpacity; recreate when those change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [baseOpacity, totalWords],
+  );
+
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root || totalWords === 0) return;
-
-    const applyProgress = (progress: number) => {
-      for (let i = 0; i < totalWords; i++) {
-        const el = wordEls.current[i];
-        if (!el) continue;
-        const opacity = wordRevealOpacity(progress, i, totalWords);
-        const mapped =
-          baseOpacity + ((opacity - 0.12) / 0.88) * (1 - baseOpacity);
-        el.style.opacity = String(mapped);
-      }
-    };
 
     if (prefersReducedMotion) {
       applyProgress(1);
       return;
     }
 
-    ensureScrollTriggerRegistered();
     applyProgress(0);
+
+    // Parent timeline owns scene-3 reveal progress.
+    if (controlled) return;
+
+    ensureScrollTriggerRegistered();
 
     let revealST: ScrollTrigger | null = null;
 
@@ -138,7 +172,6 @@ export function ShowcaseTextReveal({
     );
     io.observe(root);
 
-    // Re-check after pin ScrollTriggers refresh layout.
     const onRefresh = () => tryArm();
     ScrollTrigger.addEventListener("refresh", onRefresh);
     requestAnimationFrame(() => {
@@ -151,7 +184,8 @@ export function ShowcaseTextReveal({
       ScrollTrigger.removeEventListener("refresh", onRefresh);
       revealST?.kill();
     };
-  }, [baseOpacity, pinDistance, prefersReducedMotion, totalWords]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseOpacity, controlled, pinDistance, prefersReducedMotion, totalWords]);
 
   return (
     <div ref={rootRef} className={className}>

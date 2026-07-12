@@ -15,8 +15,8 @@ export function getScrollProgress(): number {
 
 /** Scroll offsets within the hero pin for nested nav targets. */
 const HERO_SECTION_PROGRESS: Record<string, number> = {
-  solution: 0.28,
-  process: 0.62,
+  solution: 0.24,
+  process: 0.72,
 };
 
 function scrollToHeroProgress(progress: number, behavior: ScrollBehavior): void {

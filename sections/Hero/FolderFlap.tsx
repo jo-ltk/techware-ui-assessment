@@ -1,7 +1,8 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import type { CSSProperties, Ref } from "react";
 
 import { assets } from "@/constants";
+import { cn } from "@/lib/utils";
 
 const folderShapePath =
   "M513.925 0C557.167 0 598.271 18.8108 626.537 51.5361C654.803 84.2615 695.907 103.072 739.15 103.072H1231.61C1324.61 103.072 1400 178.461 1400 271.457V909.278C1400 1002.27 1324.61 1077.66 1231.61 1077.66H168.385C75.3886 1077.66 0 1002.27 0 909.278V168.385C0 75.3884 75.3885 0 168.385 0H513.925Z";
@@ -48,12 +49,17 @@ const folderStrokeFadeStyle: CSSProperties = {
 type FolderFlapProps = {
   /** Optional placement override for breakpoint-specific compositions. */
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 };
 
-export function FolderFlap({ className }: FolderFlapProps) {
+export function FolderFlap({ className, ref }: FolderFlapProps) {
   return (
     <div
-      className={`absolute left-0 z-30 w-full ${className ?? "bottom-0 translate-y-12"}`}
+      ref={ref}
+      className={cn(
+        "absolute left-0 z-30 w-full will-change-transform",
+        className ?? "bottom-0 translate-y-12",
+      )}
     >
       {/*
         Opaque occlusion under the glass. The fill SVG is only ~20% opacity and
