@@ -43,7 +43,12 @@ const hero = {
 
 const PIN_OFFSET_PX = 80;
 
-/** Pin length for phone rise → viewport folder takeover → word reveal. */
+/** Mobile pin length — phone rise only (no folder takeover). */
+function getMobileScrollDistance() {
+  return Math.round(window.innerHeight * 1.2);
+}
+
+/** Desktop pin length — phone rise → folder takeover → word reveal. */
 function getScrollDistance() {
   return Math.round(window.innerHeight * 2.8);
 }
@@ -58,7 +63,7 @@ function ensureScrollTriggerRegistered() {
 }
 
 /**
- * Scene layout (scrubbed, sequential):
+ * Desktop scene layout (scrubbed, sequential):
  *  1 — resting: phone + cards tucked in the folder (no motion)
  *  2 — phone + glass cards rise; header exits
  *  3a — folder slides up until it fills the viewport (behind the nav); glow exits
@@ -74,7 +79,7 @@ const SCENE = {
 /**
  * How far the folder stage must travel so its top edge sits at the viewport
  * top (behind the fixed/sticky navbar), matching the full-screen takeover.
- * Recomputed on refresh — never a fixed pixel bump.
+ * Desktop only — never a fixed pixel bump.
  */
 function getFolderViewportRise(el: HTMLElement) {
   const currentY = Number(gsap.getProperty(el, "y")) || 0;
@@ -84,14 +89,13 @@ function getFolderViewportRise(el: HTMLElement) {
   return inset - naturalTop;
 }
 
+/** Mobile: original phone/card rise — folder stays put, text reveals on its own. */
 function MobileShowcase() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const pinRef = useRef<HTMLDivElement | null>(null);
   const phoneRef = useRef<HTMLDivElement | null>(null);
   const leftCardRef = useRef<HTMLDivElement | null>(null);
   const rightCardRef = useRef<HTMLDivElement | null>(null);
-  const folderStageRef = useRef<HTMLDivElement | null>(null);
-  const textRevealRef = useRef<ShowcaseTextRevealHandle | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
   useLayoutEffect(() => {
@@ -100,90 +104,38 @@ function MobileShowcase() {
     const phone = phoneRef.current;
     const leftCard = leftCardRef.current;
     const rightCard = rightCardRef.current;
-    const folderStage = folderStageRef.current;
-    if (
-      !section ||
-      !pin ||
-      !phone ||
-      !leftCard ||
-      !rightCard ||
-      !folderStage
-    )
-      return;
+    if (!section || !pin || !phone || !leftCard || !rightCard) return;
 
-    // Scene 1 resting — phone + cards tucked in the folder (original layout).
-    gsap.set(phone, { xPercent: -50, y: 110, opacity: 1, force3D: true });
-    gsap.set([leftCard, rightCard], { y: 110, opacity: 1, force3D: true });
-    gsap.set(folderStage, { y: 0, force3D: true });
-    textRevealRef.current?.setProgress(0);
-
+    const movingElements = [phone, leftCard, rightCard];
+    gsap.set(phone, { xPercent: -50, y: 110, force3D: true });
+    gsap.set([leftCard, rightCard], { y: 110, force3D: true });
     if (prefersReducedMotion) {
-      gsap.set(phone, { xPercent: -50, y: -160, opacity: 0 });
-      gsap.set([leftCard, rightCard], { y: -160, opacity: 0 });
-      gsap.set(folderStage, { y: getFolderViewportRise(folderStage) });
-      textRevealRef.current?.setProgress(1);
+      gsap.set(phone, { xPercent: -50, y: 0 });
+      gsap.set([leftCard, rightCard], { y: 0 });
       return;
     }
 
     ensureScrollTriggerRegistered();
     const ctx = gsap.context(() => {
-      const reveal = { progress: 0 };
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: section,
           start: "top top+=80",
-          end: () => `+=${getScrollDistance()}`,
+          end: () => `+=${getMobileScrollDistance()}`,
           pin,
           pinSpacing: true,
           scrub: 1.2,
           invalidateOnRefresh: true,
         },
       });
-
-      // Scene 2 — phone + cards rise together, then settle.
+      // Shared tween keeps phone + cards in formation for the scrubbed rise.
       timeline.to(
-        [phone, leftCard, rightCard],
-        { y: -160, ease: "power1.out", duration: SCENE.phone },
+        movingElements,
+        { y: -160, ease: "power1.out", duration: 0.65 },
         0,
       );
-      timeline.to({}, { duration: SCENE.settle });
-
-      // Scene 3a — folder fills the viewport; phone stays put and exits focus.
-      const folderStart = SCENE.phone + SCENE.settle;
-      const textStart = folderStart + SCENE.folder;
-      timeline.to(
-        folderStage,
-        {
-          y: () => getFolderViewportRise(folderStage),
-          ease: "power1.inOut",
-          duration: SCENE.folder,
-        },
-        folderStart,
-      );
-      timeline.to(
-        [phone, leftCard, rightCard],
-        {
-          opacity: 0,
-          ease: "power1.in",
-          duration: SCENE.folder * 0.55,
-        },
-        folderStart,
-      );
-
-      // Scene 3b — word reveal only after the folder has settled.
-      timeline.to(
-        reveal,
-        {
-          progress: 1,
-          duration: SCENE.text,
-          ease: "none",
-          onUpdate: () => textRevealRef.current?.setProgress(reveal.progress),
-        },
-        textStart,
-      );
-
-      timeline.to({}, { duration: 0.12 });
+      timeline.to({}, { duration: 0.35 });
       requestAnimationFrame(() => ScrollTrigger.refresh());
     }, section);
     return () => ctx.revert();
@@ -274,31 +226,25 @@ function MobileShowcase() {
           </div>
         </div>
 
-        <div
-          ref={folderStageRef}
-          className="absolute inset-0 z-40 will-change-transform"
-        >
-          <div className="absolute top-[40%] left-[10%] right-[10%] z-[1] text-left">
-            <ShowcaseTextReveal
-              ref={textRevealRef}
-              controlled
-              baseOpacity={0.2}
-              lines={[
-                {
-                  text: hero.showcase.heading,
-                  className:
-                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
-                },
-                {
-                  text: hero.showcase.description,
-                  className:
-                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
-                },
-              ]}
-            />
-          </div>
-          <FolderFlap className="top-[25%] z-0 w-full translate-y-0" />
+        <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
+          <ShowcaseTextReveal
+            pinDistance={getMobileScrollDistance}
+            baseOpacity={0.2}
+            lines={[
+              {
+                text: hero.showcase.heading,
+                className:
+                  "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
+              },
+              {
+                text: hero.showcase.description,
+                className:
+                  "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
+              },
+            ]}
+          />
         </div>
+        <FolderFlap className="top-[25%] z-40 w-full translate-y-0" />
       </div>
     </div>
   );
