@@ -89,14 +89,88 @@ function getFolderViewportRise(el: HTMLElement) {
   return inset - naturalTop;
 }
 
-/** Mobile: original phone/card rise — folder stays put, text reveals on its own. */
+/** Mobile folderBottom — edit by hand. Width stays 100%. */
+const MOBILE_FOLDER_BOTTOM_TOP_PX = 90; // gap: negative = up, positive = down
+const MOBILE_FOLDER_BOTTOM_HEIGHT_PCT = 100; // height only (100 = full)
+
+/** Mobile/tablet: phone + cards rise, then word reveal — all on one scrubbed pin. */
 function MobileShowcase() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const pinRef = useRef<HTMLDivElement | null>(null);
+  const artboardRef = useRef<HTMLDivElement | null>(null);
+  const folderBottomRef = useRef<HTMLDivElement | null>(null);
+  const folderFlapRef = useRef<HTMLDivElement | null>(null);
   const phoneRef = useRef<HTMLDivElement | null>(null);
   const leftCardRef = useRef<HTMLDivElement | null>(null);
   const rightCardRef = useRef<HTMLDivElement | null>(null);
+  const textRevealRef = useRef<ShowcaseTextRevealHandle | null>(null);
   const prefersReducedMotion = useReducedMotion();
+
+  // Layout inspection only — no CSS/GSAP changes. Remove after diagnosing.
+  useLayoutEffect(() => {
+    const artboard = artboardRef.current;
+    const folderBottom = folderBottomRef.current;
+    const folderFlap = folderFlapRef.current;
+    const phone = phoneRef.current;
+    const leftCard = leftCardRef.current;
+    const rightCard = rightCardRef.current;
+    if (
+      !artboard ||
+      !folderBottom ||
+      !folderFlap ||
+      !phone ||
+      !leftCard ||
+      !rightCard
+    ) {
+      return;
+    }
+
+    const box = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      return {
+        x: Math.round(r.x),
+        y: Math.round(r.y),
+        width: Math.round(r.width),
+        height: Math.round(r.height),
+        top: Math.round(r.top),
+        left: Math.round(r.left),
+        right: Math.round(r.right),
+        bottom: Math.round(r.bottom),
+      };
+    };
+
+    const artboardBox = box(artboard);
+    const phoneBox = box(phone);
+    const phoneShell = phone.parentElement;
+
+    console.table({
+      artboard: box(artboard),
+      folderBottom: box(folderBottom),
+      FolderFlap: box(folderFlap),
+      phone: phoneBox,
+      leftCard: box(leftCard),
+      rightCard: box(rightCard),
+    });
+
+    console.log("[MobileShowcase layout]", {
+      windowInnerWidth: window.innerWidth,
+      windowInnerHeight: window.innerHeight,
+      artboardAspectRatio:
+        artboardBox.height > 0
+          ? Number((artboardBox.width / artboardBox.height).toFixed(4))
+          : null,
+      artboardCssAspect: "1400/1078 ≈ 1.2987",
+      phoneWidth: phoneBox.width,
+      phoneTop: phoneBox.top,
+      phoneShellWidth: phoneShell
+        ? Math.round(phoneShell.getBoundingClientRect().width)
+        : null,
+      phoneShellTop: phoneShell
+        ? Math.round(phoneShell.getBoundingClientRect().top)
+        : null,
+      phoneShellClassName: phoneShell?.className ?? null,
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -107,16 +181,24 @@ function MobileShowcase() {
     if (!section || !pin || !phone || !leftCard || !rightCard) return;
 
     const movingElements = [phone, leftCard, rightCard];
-    gsap.set(phone, { xPercent: -50, y: 110, force3D: true });
+    // Reset any stale inline transforms (bfcache / HMR), then set Y only.
+    // Horizontal centering stays on CSS (`left-1/2 -translate-x-1/2`) so
+    // xPercent never races against an unloaded/zero-width image.
+    gsap.set(movingElements, { clearProps: "transform" });
+    gsap.set(phone, { x: 0, xPercent: 0, y: 110, force3D: true });
     gsap.set([leftCard, rightCard], { y: 110, force3D: true });
+    textRevealRef.current?.setProgress(0);
+
     if (prefersReducedMotion) {
-      gsap.set(phone, { xPercent: -50, y: 0 });
+      gsap.set(phone, { x: 0, xPercent: 0, y: 0 });
       gsap.set([leftCard, rightCard], { y: 0 });
+      textRevealRef.current?.setProgress(1);
       return;
     }
 
     ensureScrollTriggerRegistered();
     const ctx = gsap.context(() => {
+      const reveal = { progress: 0 };
       const timeline = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
@@ -127,15 +209,34 @@ function MobileShowcase() {
           pinSpacing: true,
           scrub: 1.2,
           invalidateOnRefresh: true,
+          // Pin-spacer can clip absolute overflow; keep the folder artboard visible.
+          onRefresh: (self) => {
+            const pinned = self.pin;
+            if (!(pinned instanceof HTMLElement)) return;
+            pinned.style.overflow = "visible";
+            const spacer = pinned.parentElement;
+            if (spacer) spacer.style.overflow = "visible";
+          },
         },
       });
       // Shared tween keeps phone + cards in formation for the scrubbed rise.
       timeline.to(
         movingElements,
-        { y: -160, ease: "power1.out", duration: 0.65 },
+        { y: -160, ease: "power1.out", duration: 0.55 },
         0,
       );
-      timeline.to({}, { duration: 0.35 });
+      // Word reveal after the phone has risen — driven here so it works inside
+      // the pin (independent ScrollTrigger + IO fails on mobile/tablet).
+      timeline.to(
+        reveal,
+        {
+          progress: 1,
+          duration: 0.45,
+          ease: "none",
+          onUpdate: () => textRevealRef.current?.setProgress(reveal.progress),
+        },
+        0.55,
+      );
       requestAnimationFrame(() => ScrollTrigger.refresh());
     }, section);
     return () => ctx.revert();
@@ -144,107 +245,153 @@ function MobileShowcase() {
   return (
     <div
       ref={sectionRef}
-      className="relative mt-8 block w-full max-w-[44rem] xl:hidden"
+      className="relative mt-8 block w-full max-w-[44rem] md:mt-16 xl:hidden"
     >
-      <div ref={pinRef} className="relative aspect-[1/1.28] w-full">
+      {/* Pin the showcase shell; keep overflow visible so the folder artboard isn't clipped. */}
+      <div ref={pinRef} className="relative w-full overflow-visible">
+        {/*
+          Same parent artboard as desktop folderBottom (aspect-[1400/1078] overflow-visible).
+          Sits behind the phone layer — do not house the phone here (phone keeps aspect-[1/1.28]).
+        */}
         <div
-          ref={phoneRef}
-          className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] -translate-x-1/2 translate-y-[110px] will-change-transform"
+          ref={artboardRef}
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 aspect-[1400/1078] w-full overflow-visible"
         >
           <div
+            ref={folderBottomRef}
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2"
+            className="pointer-events-none absolute left-0 z-10 w-full overflow-hidden will-change-transform"
+            style={{
+              top: MOBILE_FOLDER_BOTTOM_TOP_PX,
+              height: `${MOBILE_FOLDER_BOTTOM_HEIGHT_PCT}%`,
+              WebkitMaskImage:
+                "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
+              maskImage:
+                "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskSize: "100% 100%",
+              maskSize: "100% 100%",
+            }}
           >
             <Image
-              src={assets.heroShowcase.iphoneGlow.src}
-              alt=""
-              width={assets.heroShowcase.iphoneGlow.width}
-              height={assets.heroShowcase.iphoneGlow.height}
-              className="h-auto w-full"
+              src={assets.heroShowcase.folderBottom.src}
+              alt={assets.heroShowcase.folderBottom.alt}
+              width={assets.heroShowcase.folderBottom.width}
+              height={assets.heroShowcase.folderBottom.height}
+              sizes="min(87.5rem, 100vw)"
+              className="h-auto w-full max-w-none"
             />
           </div>
-          <Image
-            src={assets.heroShowcase.iphone.src}
-            alt={assets.heroShowcase.iphone.alt}
-            width={assets.heroShowcase.iphone.width}
-            height={assets.heroShowcase.iphone.height}
-            sizes="28vw"
-            priority
-            className="relative z-10 w-full"
-          />
         </div>
 
-        <div
-          ref={leftCardRef}
-          className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform"
-        >
-          <div className="flex w-[18%] shrink-0 flex-col items-center">
-            {assets.heroShowcase.avatars.map((avatar, index) => (
+        <div className="relative z-10 aspect-[1/1.28] w-full overflow-visible">
+          {/* CSS owns horizontal centering; GSAP only animates Y on the inner node. */}
+          <div className="absolute -top-[22%] left-1/2 z-30 w-[28.25%] -translate-x-1/2 md:-top-[12%]">
+            <div
+              ref={phoneRef}
+              className="translate-y-[110px] will-change-transform"
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2"
+              >
+                <Image
+                  src={assets.heroShowcase.iphoneGlow.src}
+                  alt=""
+                  width={assets.heroShowcase.iphoneGlow.width}
+                  height={assets.heroShowcase.iphoneGlow.height}
+                  className="h-auto w-full"
+                />
+              </div>
               <Image
-                key={avatar.src}
-                src={avatar.src}
-                alt={avatar.alt}
-                width={avatar.width}
-                height={avatar.height}
-                sizes="48px"
-                className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`}
-                style={{ zIndex: index + 1 }}
+                src={assets.heroShowcase.iphone.src}
+                alt={assets.heroShowcase.iphone.alt}
+                width={assets.heroShowcase.iphone.width}
+                height={assets.heroShowcase.iphone.height}
+                sizes="28vw"
+                priority
+                className="relative z-10 w-full"
               />
-            ))}
+            </div>
           </div>
-          <div className="min-w-0 flex-1 text-left">
-            <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">
-              {hero.showcase.stats.left.value}
-            </p>
-            <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">
-              {hero.showcase.stats.left.label}
-            </p>
-          </div>
-        </div>
 
-        <div
-          ref={rightCardRef}
-          className="@container absolute -top-[10%] right-[8%] z-50 flex w-[min(38%,11rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform"
-        >
-          <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
-            <Image
-              src={assets.icons.shield}
-              alt=""
-              width={24}
-              height={24}
-              aria-hidden
-              className="size-[52%]"
+          <div
+            ref={leftCardRef}
+            className="@container absolute -top-[18%] left-[10%] z-50 flex w-[min(34%,9.5rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform md:-top-[8%]"
+          >
+            <div className="flex w-[18%] shrink-0 flex-col items-center">
+              {assets.heroShowcase.avatars.map((avatar, index) => (
+                <Image
+                  key={avatar.src}
+                  src={avatar.src}
+                  alt={avatar.alt}
+                  width={avatar.width}
+                  height={avatar.height}
+                  sizes="48px"
+                  className={`relative aspect-square w-full rounded-full border border-white/70 object-cover ${index > 0 ? "-mt-[55%]" : ""}`}
+                  style={{ zIndex: index + 1 }}
+                />
+              ))}
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">
+                {hero.showcase.stats.left.value}
+              </p>
+              <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">
+                {hero.showcase.stats.left.label}
+              </p>
+            </div>
+          </div>
+
+          <div
+            ref={rightCardRef}
+            className="@container absolute -top-[10%] right-[8%] z-50 flex w-[min(38%,11rem)] translate-y-[110px] items-center gap-[clamp(0.25rem,2cqw,0.5rem)] rounded-[clamp(0.5rem,4cqw,0.85rem)] border border-white/40 bg-white/35 p-[clamp(0.3rem,3cqw,0.65rem)] shadow-lg backdrop-blur-lg will-change-transform md:top-0"
+          >
+            <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
+              <Image
+                src={assets.icons.shield}
+                alt=""
+                width={24}
+                height={24}
+                aria-hidden
+                className="size-[52%]"
+              />
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">
+                {hero.showcase.stats.right.value}
+              </p>
+              <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">
+                {hero.showcase.stats.right.label}
+              </p>
+            </div>
+          </div>
+
+          <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
+            <ShowcaseTextReveal
+              ref={textRevealRef}
+              controlled
+              baseOpacity={0.2}
+              lines={[
+                {
+                  text: hero.showcase.heading,
+                  className:
+                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
+                },
+                {
+                  text: hero.showcase.description,
+                  className:
+                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
+                },
+              ]}
             />
           </div>
-          <div className="min-w-0 flex-1 text-left">
-            <p className="text-stat text-[length:clamp(0.55rem,10cqw,1.1rem)] text-foreground">
-              {hero.showcase.stats.right.value}
-            </p>
-            <p className="text-stat-label mt-[0.15em] text-[length:clamp(0.35rem,5.5cqw,0.65rem)] leading-[1.2]">
-              {hero.showcase.stats.right.label}
-            </p>
-          </div>
-        </div>
-
-        <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
-          <ShowcaseTextReveal
-            pinDistance={getMobileScrollDistance}
-            baseOpacity={0.2}
-            lines={[
-              {
-                text: hero.showcase.heading,
-                className:
-                  "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
-              },
-              {
-                text: hero.showcase.description,
-                className:
-                  "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
-              },
-            ]}
+          <FolderFlap
+            ref={folderFlapRef}
+            className="top-[25%] z-40 w-full translate-y-0"
           />
         </div>
-        <FolderFlap className="top-[25%] z-40 w-full translate-y-0" />
       </div>
     </div>
   );
@@ -259,6 +406,7 @@ export function Hero() {
   const leftStatRef = useRef<HTMLDivElement | null>(null);
   const rightStatRef = useRef<HTMLDivElement | null>(null);
   const folderStageRef = useRef<HTMLDivElement | null>(null);
+  const folderBottomRef = useRef<HTMLDivElement | null>(null);
   const dissolveRef = useRef<HTMLDivElement | null>(null);
   const textRevealRef = useRef<ShowcaseTextRevealHandle | null>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -272,6 +420,7 @@ export function Hero() {
     const leftStat = leftStatRef.current;
     const rightStat = rightStatRef.current;
     const folderStage = folderStageRef.current;
+    const folderBottom = folderBottomRef.current;
     const dissolve = dissolveRef.current;
     if (
       !section ||
@@ -282,26 +431,42 @@ export function Hero() {
       !leftStat ||
       !rightStat ||
       !folderStage ||
+      !folderBottom ||
       !dissolve
     )
       return;
     if (window.innerWidth < 1280) return;
 
     // Scene 1 — phone + cards tucked in the folder (original layout).
-    gsap.set(iphone, { xPercent: -50, y: 50, opacity: 1, force3D: true });
+    // Clear stale inline transforms first (bfcache / prior scrub), then set Y
+    // only. Horizontal centering is CSS on a wrapper so it never depends on
+    // GSAP xPercent vs. image width at init time.
+    // Top + bottom folder pieces share the same Y so they stay one unit.
+    gsap.set([iphone, leftStat, rightStat, folderStage, folderBottom, header], {
+      clearProps: "transform",
+    });
+    gsap.set(iphone, {
+      x: 0,
+      xPercent: 0,
+      y: 50,
+      opacity: 1,
+      force3D: true,
+    });
     gsap.set(leftStat, { y: 70, opacity: 1, force3D: true });
     gsap.set(rightStat, { y: 90, opacity: 1, force3D: true });
-    gsap.set(folderStage, { y: 0, force3D: true });
+    gsap.set([folderStage, folderBottom], { y: 0, force3D: true });
     gsap.set(dissolve, { opacity: 1 });
     gsap.set(header, { y: 0, opacity: 1 });
     gsap.set(gradient, { opacity: 1 });
     textRevealRef.current?.setProgress(0);
 
     if (prefersReducedMotion) {
-      gsap.set(iphone, { xPercent: -50, y: -160, opacity: 0 });
+      gsap.set(iphone, { x: 0, xPercent: 0, y: -160, opacity: 0 });
       gsap.set(leftStat, { y: -190, opacity: 0 });
       gsap.set(rightStat, { y: -140, opacity: 0 });
-      gsap.set(folderStage, { y: getFolderViewportRise(folderStage) });
+      gsap.set([folderStage, folderBottom], {
+        y: getFolderViewportRise(folderStage),
+      });
       gsap.set(dissolve, { opacity: 0 });
       gsap.set(gradient, { opacity: 0 });
       textRevealRef.current?.setProgress(1);
@@ -333,7 +498,8 @@ export function Hero() {
       tl.to(
         iphone,
         {
-          xPercent: -50,
+          x: 0,
+          xPercent: 0,
           y: -160,
           ease: "power1.out",
           duration: SCENE.phone,
@@ -373,10 +539,11 @@ export function Hero() {
       tl.to({}, { duration: SCENE.settle });
 
       // Scene 3a — folder slides up until it owns the viewport (behind nav).
+      // Bottom piece rides the same tween so the split folder stays attached.
       const folderStart = SCENE.phone + SCENE.settle;
       const textStart = folderStart + SCENE.folder;
       tl.to(
-        folderStage,
+        [folderStage, folderBottom],
         {
           y: () => getFolderViewportRise(folderStage),
           ease: "power1.inOut",
@@ -558,8 +725,9 @@ export function Hero() {
               </div>
 
               <div
+                ref={folderBottomRef}
                 aria-hidden
-                className="pointer-events-none absolute bottom-[5%] left-0 z-10 hidden w-full translate-y-12"
+                className="pointer-events-none absolute top-10 left-0 z-10 w-full will-change-transform"
                 style={{
                   WebkitMaskImage:
                     "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
@@ -577,35 +745,38 @@ export function Hero() {
                   width={assets.heroShowcase.folderBottom.width}
                   height={assets.heroShowcase.folderBottom.height}
                   sizes="min(87.5rem, 100vw)"
-                  className="w-full"
+                  className="h-auto w-full"
                 />
               </div>
 
-              <div
-                ref={iphoneRef}
-                className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 translate-y-[50px] will-change-transform sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[260px] xl:top-[-160px] 2xl:w-[300px] 2xl:top-[-190px]"
-              >
+              {/* CSS owns horizontal centering; GSAP only animates Y/opacity. */}
+              <div className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[260px] xl:top-[-160px] 2xl:w-[300px] 2xl:top-[-190px]">
                 <div
-                  aria-hidden
-                  className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2"
+                  ref={iphoneRef}
+                  className="translate-y-[50px] will-change-transform"
                 >
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute left-1/2 top-1/2 z-0 w-[280%] -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <Image
+                      src={assets.heroShowcase.iphoneGlow.src}
+                      alt=""
+                      width={assets.heroShowcase.iphoneGlow.width}
+                      height={assets.heroShowcase.iphoneGlow.height}
+                      className="h-auto w-full"
+                    />
+                  </div>
                   <Image
-                    src={assets.heroShowcase.iphoneGlow.src}
-                    alt=""
-                    width={assets.heroShowcase.iphoneGlow.width}
-                    height={assets.heroShowcase.iphoneGlow.height}
-                    className="h-auto w-full"
+                    src={assets.heroShowcase.iphone.src}
+                    alt={assets.heroShowcase.iphone.alt}
+                    width={assets.heroShowcase.iphone.width}
+                    height={assets.heroShowcase.iphone.height}
+                    sizes="300px"
+                    priority
+                    className="relative z-10 w-full"
                   />
                 </div>
-                <Image
-                  src={assets.heroShowcase.iphone.src}
-                  alt={assets.heroShowcase.iphone.alt}
-                  width={assets.heroShowcase.iphone.width}
-                  height={assets.heroShowcase.iphone.height}
-                  sizes="300px"
-                  priority
-                  className="relative z-10 w-full"
-                />
               </div>
 
               <div

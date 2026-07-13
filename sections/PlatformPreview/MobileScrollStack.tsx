@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
@@ -62,6 +62,7 @@ export default function MobileScrollStack({
       root.querySelectorAll<HTMLElement>(".scroll-stack-card"),
     );
     const endElement = root.querySelector<HTMLElement>(".scroll-stack-end");
+    const inner = root.querySelector<HTMLElement>(".scroll-stack-inner");
     if (!cards.length) return;
 
     const scroller = useWindowScroll ? undefined : root;
@@ -93,6 +94,14 @@ export default function MobileScrollStack({
     const getScaleEndOffset = () =>
       parseLength(scaleEndPosition, getViewportHeight());
 
+    // Manual footer gap — raise/lower this number (px) to tighten spacing.
+    const FOOTER_GAP_PX = 48;
+
+    const updateRunway = () => {
+      if (!useWindowScroll || !inner) return;
+      inner.style.paddingBottom = `${FOOTER_GAP_PX}px`;
+    };
+
     const updateBlur = () => {
       if (!applyBlur) return;
 
@@ -112,6 +121,8 @@ export default function MobileScrollStack({
       });
     };
 
+    updateRunway();
+
     const ctx = gsap.context(() => {
       cards.forEach((card, i) => {
         const targetScale = baseScale + i * itemScale;
@@ -122,10 +133,15 @@ export default function MobileScrollStack({
           scroller,
           start: () => `top ${getStackOffset(i)}px`,
           endTrigger: endElement ?? cards[cards.length - 1],
-          end: "top center",
+          // Release before viewport center so tall tablet cards clear the footer.
+          end: "top 80%",
           pin: true,
           pinSpacing: false,
           invalidateOnRefresh: true,
+          onRefresh: () => {
+            updateRunway();
+            updateBlur();
+          },
           onEnter: () => {
             if (!isLast || stackCompletedRef.current) return;
             stackCompletedRef.current = true;
@@ -135,7 +151,6 @@ export default function MobileScrollStack({
             if (!isLast) return;
             stackCompletedRef.current = false;
           },
-          onRefresh: updateBlur,
           onUpdate: updateBlur,
         });
 
@@ -160,11 +175,15 @@ export default function MobileScrollStack({
     }, root);
 
     // Other sections (Hero / WhoItsFor) may settle layout after mount
-    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 100);
+    const refreshId = window.setTimeout(() => {
+      updateRunway();
+      ScrollTrigger.refresh();
+    }, 100);
 
     return () => {
       window.clearTimeout(refreshId);
       stackCompletedRef.current = false;
+      if (inner) inner.style.paddingBottom = "";
       ctx.revert();
     };
   }, [
@@ -200,8 +219,8 @@ export default function MobileScrollStack({
       <div
         className={
           useWindowScroll
-            ? // Small runway so pinned cards clear before the footer (pinSpacing: false).
-              "scroll-stack-inner pb-16 sm:pb-20"
+            ? // paddingBottom is set dynamically in the effect (small footer gap).
+              "scroll-stack-inner pb-16"
             : "scroll-stack-inner min-h-screen px-20 pb-[50rem] pt-[20vh]"
         }
       >

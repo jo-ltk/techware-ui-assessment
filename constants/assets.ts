@@ -131,7 +131,7 @@ export const assets = {
     folderBottom: {
       src: "/assets/folder-bottom.svg",
       width: 1400,
-      height: 1078,
+      height: 998,
       alt: "",
     },
     avatars: [

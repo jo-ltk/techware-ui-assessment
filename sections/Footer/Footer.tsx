@@ -130,18 +130,18 @@ export function Footer() {
             aria-hidden
           />
 
-          <div className="relative z-10 flex min-h-[inherit] flex-col p-5 sm:p-10 md:p-12 lg:p-14">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-x-8 sm:gap-y-12 md:grid-cols-4">
-              <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
+          <div className="relative z-10 flex min-h-[inherit] flex-col p-5 sm:p-8 md:p-10 lg:p-14">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:gap-x-6 sm:gap-y-10 md:grid-cols-4 md:gap-x-4 md:gap-y-0 lg:gap-x-8">
+              <div className="min-w-0">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1rem] lg:text-[length:var(--font-size-xl)] lg:leading-none">
                   {footerLinks.product.title}
                 </h3>
-                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-4 sm:gap-2.5 md:mt-5 md:gap-3">
                   {footerLinks.product.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white sm:text-[length:var(--font-size-md)]"
+                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-snug tracking-[-0.03em] text-white/75 transition-colors hover:text-white md:text-[0.875rem] lg:text-[length:var(--font-size-md)] lg:leading-none"
                       >
                         {link.label}
                       </a>
@@ -150,16 +150,16 @@ export function Footer() {
                 </ul>
               </div>
 
-              <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
+              <div className="min-w-0">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1rem] lg:text-[length:var(--font-size-xl)] lg:leading-none">
                   {footerLinks.company.title}
                 </h3>
-                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-4 sm:gap-2.5 md:mt-5 md:gap-3">
                   {footerLinks.company.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 transition-colors hover:text-white sm:text-[length:var(--font-size-md)]"
+                        className="font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-snug tracking-[-0.03em] text-white/75 transition-colors hover:text-white md:text-[0.875rem] lg:text-[length:var(--font-size-md)] lg:leading-none"
                       >
                         {link.label}
                       </a>
@@ -168,28 +168,31 @@ export function Footer() {
                 </ul>
               </div>
 
-              <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
+              <div className="min-w-0">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1rem] lg:text-[length:var(--font-size-xl)] lg:leading-none">
                   {contact.title}
                 </h3>
-                <ul className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-3">
+                <ul className="mt-3 flex flex-col gap-2 sm:mt-4 sm:gap-2.5 md:mt-5 md:gap-3">
                   {contact.items.map((item) => (
                     <li
                       key={item.label}
-                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-none tracking-[-0.03em] text-white/75 sm:text-[length:var(--font-size-md)]"
+                      className="flex items-center gap-2 font-[family-name:var(--font-family-sans)] text-[0.8125rem] font-normal leading-snug tracking-[-0.03em] text-white/75 md:text-[0.875rem] lg:text-[length:var(--font-size-md)] lg:leading-none"
                     >
-                      <item.icon className="size-3 shrink-0 sm:size-3.5" aria-hidden />
-                      {item.label}
+                      <item.icon
+                        className="size-3 shrink-0 sm:size-3.5"
+                        aria-hidden
+                      />
+                      <span className="min-w-0 break-words">{item.label}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div>
-                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-none tracking-[-0.03em] text-white sm:text-[length:var(--font-size-xl)]">
+              <div className="min-w-0">
+                <h3 className="font-[family-name:var(--font-family-sans)] text-[0.9375rem] font-normal leading-snug tracking-[-0.03em] text-white md:text-[1rem] lg:text-[length:var(--font-size-xl)] lg:leading-none">
                   {connect.title}
                 </h3>
-                <div className="mt-3 flex items-center gap-2.5 sm:mt-5 sm:gap-3">
+                <div className="mt-3 flex items-center gap-2.5 sm:mt-4 sm:gap-3 md:mt-5">
                   {connect.links.map((link) => (
                     <a
                       key={link.label}
@@ -205,7 +208,7 @@ export function Footer() {
                         width={link.icon.width}
                         height={link.icon.height}
                         sizes="30px"
-                        className="size-6 sm:size-[30px]"
+                        className="size-6 sm:size-[28px] lg:size-[30px]"
                         aria-hidden
                       />
                     </a>
@@ -214,7 +217,7 @@ export function Footer() {
               </div>
             </div>
 
-            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[0.75rem] font-normal leading-none tracking-[-0.03em] text-white/60 sm:pt-16 sm:text-[length:var(--font-size-md)]">
+            <p className="mt-auto pt-10 text-right font-[family-name:var(--font-family-sans)] text-[0.75rem] font-normal leading-none tracking-[-0.03em] text-white/60 sm:pt-12 md:pt-14 lg:pt-16 sm:text-[0.875rem] lg:text-[length:var(--font-size-md)]">
               © 2026 Lorem.app. All rights reserved.
             </p>
           </div>

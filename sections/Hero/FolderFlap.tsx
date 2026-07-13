@@ -57,7 +57,7 @@ export function FolderFlap({ className, ref }: FolderFlapProps) {
     <div
       ref={ref}
       className={cn(
-        "absolute left-0 z-30 w-full will-change-transform",
+        "absolute left-0 z-30 w-full overflow-visible will-change-transform",
         className ?? "bottom-0 translate-y-12",
       )}
     >
@@ -96,13 +96,23 @@ export function FolderFlap({ className, ref }: FolderFlapProps) {
 
       <svg
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[3] h-full w-full"
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full overflow-visible"
         viewBox="0 0 1400 1078"
         preserveAspectRatio="none"
         fill="none"
+        overflow="visible"
         style={folderStrokeFadeStyle}
       >
-        <path d={folderShapePath} stroke="#FFFFFF" strokeWidth={6} />
+        {/* Solid outer — slightly inset so top/sides aren't clipped at the viewBox edge */}
+        <g transform="translate(700 539) scale(0.994 0.992) translate(-700 -539)">
+          <path
+            d={folderShapePath}
+            stroke="#FFFFFF"
+            strokeWidth={6}
+            strokeLinejoin="round"
+          />
+        </g>
+        {/* Dashed inner — same double-border treatment on top as on the bottom/sides */}
         <g transform="translate(700 539) scale(0.97429 0.9666) translate(-700 -539)">
           <path
             d={folderShapePath}
@@ -110,6 +120,7 @@ export function FolderFlap({ className, ref }: FolderFlapProps) {
             strokeWidth={4}
             strokeDasharray="12 12"
             strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </g>
       </svg>

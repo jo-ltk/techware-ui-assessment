@@ -225,7 +225,7 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="industries"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-clip bg-background px-4 pt-6 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 xl:pt-8 xl:pb-8 min-[1440px]:pt-10 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-4 max-md:[@media(max-height:800px)]:pb-4"
+      className="relative overflow-x-clip bg-background px-4 pt-0 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 xl:pt-8 xl:pb-8 min-[1440px]:pt-10 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-0 max-md:[@media(max-height:800px)]:pb-4"
     >
       <div
         ref={pinRef}
