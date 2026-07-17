@@ -120,9 +120,9 @@ export function PlatformPreview() {
     <section
       id="platform-preview"
       aria-labelledby="platform-preview-heading"
-      className="bg-background px-4 pt-6 pb-10 sm:px-5 sm:pt-8 sm:pb-12 md:px-6 md:pt-10 md:pb-12 lg:overflow-x-hidden lg:pt-12 lg:pb-12"
+      className="bg-background px-4 pt-6 pb-10 sm:px-5 sm:pt-8 sm:pb-12 md:px-6 md:pt-10 md:pb-12 lg:overflow-x-hidden lg:px-10 lg:pt-12 lg:pb-12 xl:px-16"
     >
-      <div className="container-content">
+      <div className="mx-auto w-full max-w-[90rem]">
         <div className="flex flex-col gap-3 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
           <div className="max-w-[19.5rem] sm:max-w-[32rem] md:max-w-[40rem] lg:max-w-[44rem]">
             <p className="text-label inline-flex items-center gap-1 text-[0.75rem] font-medium sm:text-[length:var(--text-label-size)]">

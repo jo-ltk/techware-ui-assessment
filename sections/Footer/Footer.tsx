@@ -98,9 +98,9 @@ export function Footer() {
     <footer
       ref={footerRef}
       id="contact"
-      className="bg-background px-0 sm:px-6"
+      className="bg-background px-4 sm:px-6 lg:px-10 xl:px-16"
     >
-      <div className="mx-auto w-full sm:w-[min(100%-(var(--container-padding-inline-sm)*2),var(--container-content))]">
+      <div className="mx-auto w-full max-w-[90rem]">
         <div className="relative min-h-[24rem] overflow-hidden rounded-none bg-[#0a0f1c] sm:min-h-[32rem] sm:rounded-t-[var(--radius-lg)]">
           {shouldLoadVideo ? (
             <video

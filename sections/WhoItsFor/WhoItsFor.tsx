@@ -53,8 +53,8 @@ const industries: Industry[] = [
 const ORBIT_CENTER_X = (402 / 866) * 100;
 const ORBIT_CENTER_Y = (325 / 618) * 100;
 // Start outside the decorative rings; end near the outer ring so the orbit tightens inward.
-const ORBIT_RADIUS_START_RATIO = 0.36;
-const ORBIT_RADIUS_END_RATIO = 0.2;
+const ORBIT_RADIUS_START_RATIO = 0.4;
+const ORBIT_RADIUS_END_RATIO = 0.24;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
 // Horizontal card nudge. Negative = left, positive = right.
 const CARDS_OFFSET_X = -6; // desktop (artboard units @ 866-wide) — more negative = left, positive = right
@@ -225,7 +225,7 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="industries"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-clip bg-background px-4 pt-0 pb-6 text-center sm:px-5 sm:pt-8 sm:pb-8 md:px-6 md:pt-10 md:pb-10 xl:pt-8 xl:pb-8 min-[1440px]:pt-10 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-0 max-md:[@media(max-height:800px)]:pb-4"
+      className="relative overflow-x-clip bg-background px-4 pt-0 pb-6 text-center sm:px-5 sm:pt-2 sm:pb-8 md:px-6 md:pt-3 md:pb-10 xl:-mt-6 xl:pt-0 xl:pb-8 min-[1440px]:-mt-4 min-[1440px]:pt-0 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-0 max-md:[@media(max-height:800px)]:pb-4"
     >
       <div
         ref={pinRef}
@@ -259,28 +259,30 @@ export function WhoItsFor() {
         </div>
 
         <div className="container-content relative z-10 flex flex-col items-center">
-        <p className="inline-flex items-center justify-center gap-1 font-sans text-[length:var(--text-label-size)] font-normal leading-none tracking-[var(--letter-spacing-badge)] text-accent">
-          <span aria-hidden className="size-1 rounded-full bg-accent" />
-          {whoItsFor.eyebrow}
-        </p>
+        <div className="flex -translate-y-2 flex-col items-center sm:-translate-y-3 md:-translate-y-4 xl:-translate-y-6">
+          <p className="inline-flex items-center justify-center gap-1 font-sans text-[length:var(--text-label-size)] font-normal leading-none tracking-[var(--letter-spacing-badge)] text-accent">
+            <span aria-hidden className="size-1 rounded-full bg-accent" />
+            {whoItsFor.eyebrow}
+          </p>
 
-        <h2
-          id="who-its-for-heading"
-          className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-none tracking-[-0.03em] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)] [@media(max-height:800px)]:mt-1.5 sm:[@media(max-height:800px)]:mt-2"
-        >
-          {whoItsFor.heading}
-        </h2>
+          <h2
+            id="who-its-for-heading"
+            className="mt-2 max-w-[19.5rem] font-sans text-[1.375rem] font-normal leading-none tracking-[-0.03em] text-foreground [hyphens:none] sm:mt-3 sm:max-w-[32rem] sm:text-[1.75rem] md:max-w-[40rem] md:text-[2.25rem] lg:max-w-[44rem] lg:text-[length:var(--text-section-title-size)] [@media(max-height:800px)]:mt-1.5 sm:[@media(max-height:800px)]:mt-2"
+          >
+            {whoItsFor.heading}
+          </h2>
 
-        <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] font-normal leading-none tracking-normal text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] md:max-w-[36rem] md:text-[length:var(--text-body-large-size)] [@media(max-height:800px)]:mt-2 sm:[@media(max-height:800px)]:mt-2.5">
-          {whoItsFor.description}
-        </p>
+          <p className="mt-3 max-w-[17.5rem] font-serif text-[0.8125rem] font-normal leading-none tracking-normal text-foreground-muted sm:mt-4 sm:max-w-[28rem] sm:text-[0.9375rem] md:max-w-[36rem] md:text-[length:var(--text-body-large-size)] [@media(max-height:800px)]:mt-2 sm:[@media(max-height:800px)]:mt-2.5">
+            {whoItsFor.description}
+          </p>
+        </div>
 
         <div
-          className="relative mt-5 w-full overflow-visible px-1 pt-1 pb-1 sm:mt-6 sm:px-2 sm:pt-2 sm:pb-2 md:mt-8 md:px-0 md:pt-4 md:pb-4 [@media(max-height:800px)]:mt-3 [@media(max-height:800px)]:pt-1 [@media(max-height:800px)]:pb-1 md:[@media(max-height:800px)]:mt-4"
+          className="relative mt-10 w-full overflow-visible px-1 pt-2 pb-1 sm:mt-12 sm:px-2 sm:pt-3 sm:pb-2 md:mt-14 md:px-0 md:pt-6 md:pb-4 xl:mt-16 [@media(max-height:800px)]:mt-8 [@media(max-height:800px)]:pt-2 [@media(max-height:800px)]:pb-1 md:[@media(max-height:800px)]:mt-10"
           style={{
             // Shrink on short viewports so the full orbit stays in the pinned frame;
-            // tall desktops still resolve to 54.125rem.
-            maxWidth: `min(54.125rem, calc((100svh - ${ORBIT_FIT_CHROME}) * 866 / 618))`,
+            // tall desktops still resolve to the larger artboard cap.
+            maxWidth: `min(62rem, calc((100svh - ${ORBIT_FIT_CHROME}) * 866 / 618))`,
           }}
         >
           <div
@@ -289,7 +291,7 @@ export function WhoItsFor() {
             style={
               {
                 // Fallback before JS measures — keeps cards on the ring, not stacked at center.
-                "--orbit-radius": "36%",
+                "--orbit-radius": "40%",
                 "--cards-offset-x": "0px",
               } as CSSProperties
             }
@@ -300,8 +302,8 @@ export function WhoItsFor() {
               width={assets.whoItsFor.core.width}
               height={assets.whoItsFor.core.height}
               aria-hidden
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 54rem"
-              className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 62rem"
+              className="pointer-events-none absolute inset-0 z-0 h-full w-full origin-[46.42%_52.59%] scale-[1.22]"
               priority
             />
 
@@ -325,7 +327,7 @@ export function WhoItsFor() {
                       style={{
                         left: `${ORBIT_CENTER_X}%`,
                         top: `${ORBIT_CENTER_Y}%`,
-                        transform: `rotate(${angle}deg) translateX(var(--orbit-radius, 36%)) rotate(${-angle}deg)`,
+                        transform: `rotate(${angle}deg) translateX(var(--orbit-radius, 40%)) rotate(${-angle}deg)`,
                       }}
                     >
                       <div className="w-fit -translate-x-1/2 -translate-y-1/2">
@@ -336,7 +338,7 @@ export function WhoItsFor() {
                           className="w-fit will-change-transform"
                         >
                           {/* Scale wrapper stays outside GSAP rotate so scrub transforms aren't overwritten */}
-                          <div className="w-fit origin-center scale-[0.38] sm:scale-[0.5] md:scale-[0.62] lg:scale-[0.78] xl:scale-100">
+                          <div className="w-fit origin-center scale-[0.55] sm:scale-[0.7] md:scale-[0.85] lg:scale-[1] xl:scale-[1.15]">
                             <OrbitCard industry={industry} />
                           </div>
                         </div>
@@ -361,16 +363,16 @@ function OrbitCard({ industry }: { industry: Industry }) {
   const fullLabel = label.join(" ");
 
   return (
-    <div className="inline-flex w-fit max-w-none items-center gap-1.5 rounded-pill border border-white bg-surface-glass-strong px-2.5 py-1.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-2 sm:px-3 sm:py-2">
-      <span className="flex size-5 shrink-0 items-center justify-center text-accent sm:size-6">
+    <div className="inline-flex w-fit max-w-none items-center gap-2.5 rounded-pill border border-white bg-surface-glass-strong px-3.5 py-2.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-3 sm:px-4 sm:py-3">
+      <span className="flex size-7 shrink-0 items-center justify-center text-accent sm:size-8">
         <Icon
           aria-hidden
-          className="size-3.5 stroke-[1.75] sm:size-4"
+          className="size-5 stroke-[1.75] sm:size-[1.375rem]"
         />
       </span>
       <span
         aria-label={fullLabel}
-        className="shrink-0 whitespace-nowrap font-sans text-[0.6875rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.75rem] md:text-[0.8125rem] lg:text-[0.875rem]"
+        className="shrink-0 whitespace-nowrap font-sans text-[0.8125rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.9375rem] md:text-[1rem] lg:text-[1.0625rem]"
       >
         {label[0]}
         <br />

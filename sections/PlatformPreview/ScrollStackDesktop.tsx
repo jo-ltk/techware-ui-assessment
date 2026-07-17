@@ -319,11 +319,12 @@ const ScrollStackDesktop: React.FC<ScrollStackProps> = ({
             pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
         }
 
+        // Whole pixels + short scale — avoids subpixel shimmy while scrubbing.
         const newTransform: CardTransform = {
-          translateY,
-          scale,
-          rotation,
-          blur,
+          translateY: Math.round(translateY),
+          scale: Math.round(scale * 1000) / 1000,
+          rotation: Math.round(rotation * 100) / 100,
+          blur: Math.round(blur * 10) / 10,
         };
 
         const lastTransform = transformsCache.get(i);
@@ -346,20 +347,10 @@ const ScrollStackDesktop: React.FC<ScrollStackProps> = ({
           transformsAppliedInWindow++;
         }
 
-        // Promote only cards that are actively scrubbing or pinned. Idle /
-        // offscreen cards stay at will-change:auto to limit GPU memory.
-        if (scrolling) {
-          const isAnimating =
-            translateY !== 0 ||
-            scale !== 1 ||
-            (scrollTop >= pinStart && scrollTop <= pinEnd);
-          setCardWillChange(card, isAnimating ? "transform" : "auto");
-        }
-
         if (i === 0 || (scrollTop >= pinStart && scrollTop <= pinEnd)) {
           samplePinStart = pinStart;
-          sampleTranslateY = translateY;
-          sampleScale = scale;
+          sampleTranslateY = newTransform.translateY;
+          sampleScale = newTransform.scale;
         }
 
         if (i === cardsRef.current.length - 1) {
@@ -461,7 +452,12 @@ const ScrollStackDesktop: React.FC<ScrollStackProps> = ({
 
     const markScrolling = () => {
       lastScrollTime = performance.now();
-      willChangeArmed = true;
+      // Promote all cards once per scroll gesture — toggling will-change per
+      // card/frame causes layer thrashing that reads as shaking.
+      if (!willChangeArmed) {
+        for (const card of cards) setCardWillChange(card, "transform");
+        willChangeArmed = true;
+      }
       ensureIdleCheck();
     };
 

@@ -77,6 +77,18 @@ const SCENE = {
 } as const;
 
 /**
+ * How far the phone must travel so it sits just under the sticky nav once
+ * the hero header has exited — closes the empty band left by the copy/CTAs.
+ */
+function getPhoneViewportRise(el: HTMLElement) {
+  const currentY = Number(gsap.getProperty(el, "y")) || 0;
+  const naturalTop = el.getBoundingClientRect().top - currentY;
+  // Sit below the pinned nav with clear breathing room under the bar.
+  const targetTop = PIN_OFFSET_PX + 72;
+  return targetTop - naturalTop;
+}
+
+/**
  * How far the folder stage must travel so its top edge sits at the viewport
  * top (behind the fixed/sticky navbar), matching the full-screen takeover.
  * Desktop only — never a fixed pixel bump.
@@ -92,6 +104,10 @@ function getFolderViewportRise(el: HTMLElement) {
 /** Mobile folderBottom — edit by hand. Width stays 100%. */
 const MOBILE_FOLDER_BOTTOM_TOP_PX = 90; // gap: negative = up, positive = down
 const MOBILE_FOLDER_BOTTOM_HEIGHT_PCT = 100; // height only (100 = full)
+
+/** Top inset trims visible back-folder peek above FolderFlap (px, not layout top). */
+const FOLDER_BOTTOM_MASK_IMAGE =
+  "linear-gradient(to bottom, transparent 0px, transparent 4px, black 4px, black 25%, transparent 62%)";
 
 /** Mobile/tablet: phone + cards rise, then word reveal — all on one scrubbed pin. */
 function MobileShowcase() {
@@ -245,7 +261,7 @@ function MobileShowcase() {
   return (
     <div
       ref={sectionRef}
-      className="relative mt-8 block w-full max-w-[44rem] md:mt-16 xl:hidden"
+      className="relative mt-8 block w-full max-w-[min(100%,52rem)] md:mt-16 xl:hidden"
     >
       {/* Pin the showcase shell; keep overflow visible so the folder artboard isn't clipped. */}
       <div ref={pinRef} className="relative w-full overflow-visible">
@@ -264,10 +280,8 @@ function MobileShowcase() {
             style={{
               top: MOBILE_FOLDER_BOTTOM_TOP_PX,
               height: `${MOBILE_FOLDER_BOTTOM_HEIGHT_PCT}%`,
-              WebkitMaskImage:
-                "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
-              maskImage:
-                "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
+              WebkitMaskImage: FOLDER_BOTTOM_MASK_IMAGE,
+              maskImage: FOLDER_BOTTOM_MASK_IMAGE,
               WebkitMaskRepeat: "no-repeat",
               maskRepeat: "no-repeat",
               WebkitMaskSize: "100% 100%",
@@ -368,7 +382,7 @@ function MobileShowcase() {
             </div>
           </div>
 
-          <div className="absolute top-[40%] left-[10%] right-[10%] z-45 text-left">
+          <div className="absolute top-[40%] left-[8%] right-[8%] z-45 text-left">
             <ShowcaseTextReveal
               ref={textRevealRef}
               controlled
@@ -377,12 +391,12 @@ function MobileShowcase() {
                 {
                   text: hero.showcase.heading,
                   className:
-                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
+                    "[font-family:var(--font-family-sans)] text-[clamp(1.25rem,5vw,2.25rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground",
                 },
                 {
                   text: hero.showcase.description,
                   className:
-                    "[font-family:var(--font-family-sans)] text-[clamp(1rem,4vw,1.8rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
+                    "[font-family:var(--font-family-sans)] text-[clamp(1.25rem,5vw,2.25rem)] font-light leading-[1.04] tracking-[-0.03em] text-foreground-muted",
                 },
               ]}
             />
@@ -461,9 +475,10 @@ export function Hero() {
     textRevealRef.current?.setProgress(0);
 
     if (prefersReducedMotion) {
-      gsap.set(iphone, { x: 0, xPercent: 0, y: -160, opacity: 0 });
-      gsap.set(leftStat, { y: -190, opacity: 0 });
-      gsap.set(rightStat, { y: -140, opacity: 0 });
+      const phoneRise = getPhoneViewportRise(iphone);
+      gsap.set(iphone, { x: 0, xPercent: 0, y: phoneRise, opacity: 0 });
+      gsap.set(leftStat, { y: phoneRise - 30, opacity: 0 });
+      gsap.set(rightStat, { y: phoneRise + 20, opacity: 0 });
       gsap.set([folderStage, folderBottom], {
         y: getFolderViewportRise(folderStage),
       });
@@ -495,12 +510,13 @@ export function Hero() {
       });
 
       // Scene 2 — phone reveal (cards travel with the phone).
+      // Rise far enough to fill the void left when the header exits.
       tl.to(
         iphone,
         {
           x: 0,
           xPercent: 0,
-          y: -160,
+          y: () => getPhoneViewportRise(iphone),
           ease: "power1.out",
           duration: SCENE.phone,
         },
@@ -509,7 +525,7 @@ export function Hero() {
       tl.to(
         leftStat,
         {
-          y: -190,
+          y: () => getPhoneViewportRise(iphone) - 30,
           ease: "power1.out",
           duration: SCENE.phone,
         },
@@ -518,7 +534,7 @@ export function Hero() {
       tl.to(
         rightStat,
         {
-          y: -140,
+          y: () => getPhoneViewportRise(iphone) + 20,
           ease: "power1.out",
           duration: SCENE.phone,
         },
@@ -527,7 +543,7 @@ export function Hero() {
       tl.to(
         header,
         {
-          y: -60,
+          y: -80,
           opacity: 0,
           ease: "power1.in",
           duration: SCENE.phone * 0.85,
@@ -611,50 +627,50 @@ export function Hero() {
       ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative bg-background xl:-mb-[min(48vh,36rem)] 2xl:-mb-[min(42vh,32rem)]"
+      className="relative overflow-x-clip bg-background xl:-mb-[min(78vh,52rem)] 2xl:-mb-[min(70vh,48rem)]"
     >
       {/* Full-bleed pin wrapper — overflow visible so the folder can rise behind the nav. */}
       <div ref={pinRef} className="relative w-full overflow-visible">
         <div
           ref={gradientRef}
           aria-hidden
-          className="pointer-events-none absolute top-0 right-0 z-[1] w-[min(62vw,22rem)] sm:w-[min(48vw,28rem)] md:w-[min(40vw,32rem)]"
+          className="pointer-events-none absolute top-0 right-0 z-[1] w-[min(62vw,22rem)] sm:w-[min(48vw,28rem)] md:w-[min(40vw,36rem)] xl:w-[min(42vw,40rem)]"
         >
           <Image
             src={assets.heroGradient.src}
             alt=""
             width={assets.heroGradient.width}
             height={assets.heroGradient.height}
-            sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 32rem"
+            sizes="(max-width: 640px) 62vw, (max-width: 768px) 48vw, 40rem"
             priority
             className="h-auto w-full mix-blend-screen"
           />
         </div>
 
-        <div className="container-content relative z-10 flex flex-col items-center px-4 pt-6 pb-2 text-center sm:px-5 sm:pt-8 sm:pb-3 md:px-6 md:pt-12 md:pb-4 xl:px-0 xl:pt-8 xl:pb-2 2xl:pt-14 2xl:pb-4">
+        <div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col items-center px-6 pt-6 pb-2 text-center lg:px-10 md:pt-12 md:pb-4 xl:px-16 xl:pt-8 xl:pb-2 2xl:pt-14 2xl:pb-4">
           <div
             ref={headerRef}
-            className="flex flex-col items-center pb-0 md:pb-5 xl:pb-2 2xl:pb-6"
+            className="relative z-30 flex flex-col items-center pb-0 md:pb-5 xl:pb-4 2xl:pb-6"
           >
             <h1
               id="hero-heading"
-              className="text-hero max-w-[min(100%,var(--container-narrow))] xl:text-[clamp(2.5rem,4.2vw+0.6rem,3.75rem)] 2xl:text-[length:clamp(2.375rem,6.5vw+0.75rem,var(--text-hero-size))]"
+              className="text-hero max-w-full xl:text-[clamp(2.75rem,3.6vw+0.75rem,4rem)] 2xl:text-[length:clamp(2.375rem,6.5vw+0.75rem,var(--text-hero-size))]"
             >
-              <span className="block text-foreground">
+              <span className="block text-foreground sm:whitespace-nowrap">
                 {hero.headline.line1}
               </span>
-              <span className="text-hero-gradient -mt-1 block sm:-mt-1.5">
+              <span className="text-hero-gradient -mt-1 block sm:-mt-1.5 sm:whitespace-nowrap">
                 {hero.headline.line2}
               </span>
             </h1>
 
-            <p className="text-body-large mt-2.5 max-w-[min(100%,var(--container-narrow))] xl:mt-1.5 xl:text-[0.9375rem] xl:leading-snug 2xl:mt-2.5 2xl:text-[length:clamp(0.875rem,1.5vw+0.5rem,var(--text-body-large-size))] 2xl:leading-[var(--text-body-large-leading)]">
+            <p className="text-body-large mt-2.5 max-w-[min(100%,36rem)] xl:mt-2 xl:text-[1rem] xl:leading-snug 2xl:mt-2.5 2xl:text-[length:clamp(0.875rem,1.5vw+0.5rem,var(--text-body-large-size))] 2xl:leading-[var(--text-body-large-leading)]">
               <span className="block">{hero.description.line1}</span>
               <span className="block">{hero.description.line2}</span>
             </p>
 
             <div
-              className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5 xl:mt-4 2xl:mt-7"
+              className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5 xl:mt-5 2xl:mt-7"
               role="group"
               aria-label="Hero actions"
             >
@@ -695,13 +711,13 @@ export function Hero() {
 
           <MobileShowcase />
 
-          <div className="relative z-20 mx-auto mt-28 hidden w-full max-w-[87.5rem] overflow-visible pb-0 xl:mt-12 xl:block xl:max-w-[68rem] 2xl:mt-44 2xl:max-w-[87.5rem]">
+          <div className="relative z-20 mx-auto mt-28 hidden w-full overflow-visible pb-0 xl:mt-32 xl:block 2xl:mt-40">
             <div className="relative aspect-[1400/1078] w-full overflow-visible">
               <div
                 ref={folderStageRef}
                 className="absolute inset-0 z-40 will-change-transform"
               >
-                <div className="absolute top-[36%] left-[6%] right-[6%] z-[1] text-left 2xl:top-[40%]">
+                <div className="absolute top-[34%] left-[5%] right-[5%] z-[1] text-left 2xl:top-[38%]">
                   <ShowcaseTextReveal
                     ref={textRevealRef}
                     controlled
@@ -710,12 +726,12 @@ export function Hero() {
                       {
                         text: hero.showcase.heading,
                         className:
-                          "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground sm:text-[length:clamp(1.15rem,3.1vw+0.4rem,2.65rem)] sm:leading-none 2xl:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))]",
+                          "[font-family:var(--font-family-sans)] text-left text-[clamp(1.75rem,3.2vw+0.5rem,3.75rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground sm:leading-none",
                       },
                       {
                         text: hero.showcase.description,
                         className:
-                          "[font-family:var(--font-family-sans)] text-left text-[clamp(0.6rem,2.2vw,0.8rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground-muted sm:text-[length:clamp(1.15rem,3.1vw+0.4rem,2.65rem)] sm:leading-none 2xl:text-[length:clamp(1.25rem,4vw+0.5rem,var(--font-size-4xl))]",
+                          "[font-family:var(--font-family-sans)] text-left text-[clamp(1.75rem,3.2vw+0.5rem,3.75rem)] font-light leading-[1.05] tracking-[-0.03em] text-foreground-muted sm:leading-none",
                       },
                     ]}
                   />
@@ -729,10 +745,8 @@ export function Hero() {
                 aria-hidden
                 className="pointer-events-none absolute top-10 left-0 z-10 w-full will-change-transform"
                 style={{
-                  WebkitMaskImage:
-                    "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
-                  maskImage:
-                    "linear-gradient(to bottom, black 0%, black 25%, transparent 62%)",
+                  WebkitMaskImage: FOLDER_BOTTOM_MASK_IMAGE,
+                  maskImage: FOLDER_BOTTOM_MASK_IMAGE,
                   WebkitMaskRepeat: "no-repeat",
                   maskRepeat: "no-repeat",
                   WebkitMaskSize: "100% 100%",
@@ -744,13 +758,13 @@ export function Hero() {
                   alt={assets.heroShowcase.folderBottom.alt}
                   width={assets.heroShowcase.folderBottom.width}
                   height={assets.heroShowcase.folderBottom.height}
-                  sizes="min(87.5rem, 100vw)"
+                  sizes="min(1600px, 100vw)"
                   className="h-auto w-full"
                 />
               </div>
 
               {/* CSS owns horizontal centering; GSAP only animates Y/opacity. */}
-              <div className="absolute left-1/2 z-20 w-[120px] top-[-70px] -translate-x-1/2 sm:w-[220px] sm:top-[-150px] md:w-[250px] md:top-[-170px] lg:w-[280px] lg:top-[-190px] xl:w-[260px] xl:top-[-160px] 2xl:w-[300px] 2xl:top-[-190px]">
+              <div className="absolute left-1/2 top-[-2%] z-20 w-[min(21%,18.75rem)] -translate-x-1/2 xl:top-[-4%] 2xl:top-[-6%]">
                 <div
                   ref={iphoneRef}
                   className="translate-y-[50px] will-change-transform"
@@ -772,7 +786,7 @@ export function Hero() {
                     alt={assets.heroShowcase.iphone.alt}
                     width={assets.heroShowcase.iphone.width}
                     height={assets.heroShowcase.iphone.height}
-                    sizes="300px"
+                    sizes="(min-width: 1536px) 300px, 21vw"
                     priority
                     className="relative z-10 w-full"
                   />
@@ -781,9 +795,9 @@ export function Hero() {
 
               <div
                 ref={leftStatRef}
-                className="absolute top-[-4%] left-[2%] z-50 flex h-[80px] w-[150px] translate-y-[70px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:top-[-7%] sm:left-[14%] sm:h-[122px] sm:w-[246px] sm:gap-3 sm:rounded-[1.75rem] sm:p-3.5 md:left-[21%] md:top-[-20%]"
+                className="@container absolute top-[2%] left-[8%] z-50 flex w-[min(22%,15.5rem)] translate-y-[70px] items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,0.9rem)] shadow-lg backdrop-blur-lg will-change-transform xl:left-[12%] xl:top-0 2xl:left-[14%] 2xl:top-[-2%]"
               >
-                <div className="flex w-5 shrink-0 flex-col items-center justify-center sm:w-7">
+                <div className="flex w-[18%] shrink-0 flex-col items-center justify-center">
                   {assets.heroShowcase.avatars.map((avatar, index) => (
                     <Image
                       key={avatar.src}
@@ -792,16 +806,16 @@ export function Hero() {
                       width={avatar.width}
                       height={avatar.height}
                       sizes="28px"
-                      className={`relative size-5 rounded-full border-2 border-white/60 bg-white/30 object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] sm:size-7 ${index > 0 ? "-mt-3 sm:-mt-4" : ""}`}
+                      className={`relative aspect-square w-full rounded-full border-2 border-white/60 bg-white/30 object-cover shadow-[0_1px_4px_rgba(0,0,0,0.1)] ${index > 0 ? "-mt-[55%]" : ""}`}
                       style={{ zIndex: index + 1 }}
                     />
                   ))}
                 </div>
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="text-stat text-foreground">
+                  <p className="text-stat text-[length:clamp(0.85rem,8cqw,1.5rem)] text-foreground">
                     {hero.showcase.stats.left.value}
                   </p>
-                  <p className="text-stat-label mt-1">
+                  <p className="text-stat-label mt-[0.2em] text-[length:clamp(0.55rem,4.5cqw,0.85rem)]">
                     {hero.showcase.stats.left.label}
                   </p>
                 </div>
@@ -809,9 +823,9 @@ export function Hero() {
 
               <div
                 ref={rightStatRef}
-                className="absolute -top-[5%] right-[2%] z-50 flex max-w-[150px] translate-y-[90px] items-center gap-2 rounded-[1rem] border border-white/40 bg-white/20 p-2 shadow-lg backdrop-blur-lg will-change-transform sm:-top-[10%] sm:right-[10%] sm:max-w-[min(75vw,18rem)] sm:gap-3 sm:rounded-[1.75rem] sm:p-3 md:right-[14%] md:max-w-[20rem] md:gap-4 md:p-4 lg:max-w-[22rem] lg:gap-5 lg:p-5"
+                className="@container absolute top-[4%] right-[6%] z-50 flex w-[min(26%,18rem)] translate-y-[90px] items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,1rem)] shadow-lg backdrop-blur-lg will-change-transform xl:right-[10%] xl:top-[2%] 2xl:right-[12%] 2xl:top-0"
               >
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30 sm:size-11 md:size-12 lg:size-14">
+                <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
                   <Image
                     src={assets.icons.shield}
                     alt=""
@@ -819,14 +833,14 @@ export function Hero() {
                     height={24}
                     aria-hidden
                     sizes="28px"
-                    className="size-3.5 sm:size-5 md:size-6 lg:size-7"
+                    className="size-[52%]"
                   />
                 </div>
-                <div className="min-w-0 text-left">
-                  <p className="text-stat text-foreground">
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-stat text-[length:clamp(0.85rem,8cqw,1.5rem)] text-foreground">
                     {hero.showcase.stats.right.value}
                   </p>
-                  <p className="text-stat-label mt-1 max-w-[12rem]">
+                  <p className="text-stat-label mt-[0.2em] text-[length:clamp(0.55rem,4.5cqw,0.85rem)]">
                     {hero.showcase.stats.right.label}
                   </p>
                 </div>
