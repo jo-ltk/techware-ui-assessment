@@ -107,7 +107,7 @@ const MOBILE_FOLDER_BOTTOM_HEIGHT_PCT = 100; // height only (100 = full)
 
 /** Top inset trims visible back-folder peek above FolderFlap (px, not layout top). */
 const FOLDER_BOTTOM_MASK_IMAGE =
-  "linear-gradient(to bottom, transparent 0px, transparent 4px, black 4px, black 25%, transparent 62%)";
+  "linear-gradient(to bottom, transparent 0px, transparent 4px, black 4px, black 18%, transparent 48%)";
 
 /** Mobile/tablet: phone + cards rise, then word reveal — all on one scrubbed pin. */
 function MobileShowcase() {
@@ -462,13 +462,24 @@ export function Hero() {
     gsap.set(iphone, {
       x: 0,
       xPercent: 0,
-      y: 50,
+      // Laptop: shallower tuck so phone + cards clear the fold;
+      // large desktops keep the deeper rest position.
+      y: window.innerWidth < 1536 ? 20 : 50,
       opacity: 1,
       force3D: true,
     });
-    gsap.set(leftStat, { y: 70, opacity: 1, force3D: true });
-    gsap.set(rightStat, { y: 90, opacity: 1, force3D: true });
+    gsap.set(leftStat, {
+      y: window.innerWidth < 1536 ? 0 : 70,
+      opacity: 1,
+      force3D: true,
+    });
+    gsap.set(rightStat, {
+      y: window.innerWidth < 1536 ? 0 : 90,
+      opacity: 1,
+      force3D: true,
+    });
     gsap.set([folderStage, folderBottom], { y: 0, force3D: true });
+    // Bottom fade stays visible at every screen height / scene.
     gsap.set(dissolve, { opacity: 1 });
     gsap.set(header, { y: 0, opacity: 1 });
     gsap.set(gradient, { opacity: 1 });
@@ -482,7 +493,7 @@ export function Hero() {
       gsap.set([folderStage, folderBottom], {
         y: getFolderViewportRise(folderStage),
       });
-      gsap.set(dissolve, { opacity: 0 });
+      gsap.set(dissolve, { opacity: 1 });
       gsap.set(gradient, { opacity: 0 });
       textRevealRef.current?.setProgress(1);
       return;
@@ -587,15 +598,8 @@ export function Hero() {
         },
         folderStart,
       );
-      tl.to(
-        dissolve,
-        {
-          opacity: 0,
-          ease: "power1.in",
-          duration: SCENE.folder * 0.45,
-        },
-        folderStart,
-      );
+      // Dissolve stays at opacity 1 — viewport-anchored fade must remain
+      // visible when screen height changes and after the folder takeover.
 
       // Scene 3b — word reveal only after the folder has settled.
       tl.to(
@@ -627,7 +631,7 @@ export function Hero() {
       ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative overflow-x-clip bg-background xl:-mb-[min(78vh,52rem)] 2xl:-mb-[min(70vh,48rem)]"
+      className="relative overflow-x-clip bg-background xl:-mb-[min(92vh,60rem)] 2xl:-mb-[min(82vh,54rem)]"
     >
       {/* Full-bleed pin wrapper — overflow visible so the folder can rise behind the nav. */}
       <div ref={pinRef} className="relative w-full overflow-visible">
@@ -647,14 +651,14 @@ export function Hero() {
           />
         </div>
 
-        <div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col items-center px-6 pt-6 pb-2 text-center lg:px-10 md:pt-12 md:pb-4 xl:px-16 xl:pt-8 xl:pb-2 2xl:pt-14 2xl:pb-4">
+        <div className="relative z-10 mx-auto flex w-full max-w-[1600px] flex-col items-center px-6 pt-6 pb-2 text-center lg:px-10 md:pt-12 md:pb-4 xl:px-16 xl:pt-6 xl:pb-2 2xl:pt-14 2xl:pb-4">
           <div
             ref={headerRef}
-            className="relative z-30 flex flex-col items-center pb-0 md:pb-5 xl:pb-4 2xl:pb-6"
+            className="relative z-30 flex flex-col items-center pb-0 md:pb-5 xl:pb-3 2xl:pb-6"
           >
             <h1
               id="hero-heading"
-              className="text-hero max-w-full xl:text-[clamp(2.75rem,3.6vw+0.75rem,4rem)] 2xl:text-[length:clamp(2.375rem,6.5vw+0.75rem,var(--text-hero-size))]"
+              className="text-hero max-w-full xl:text-[clamp(2.25rem,2.8vw+0.6rem,3.25rem)] 2xl:text-[length:clamp(2.375rem,6.5vw+0.75rem,var(--text-hero-size))]"
             >
               <span className="block text-foreground sm:whitespace-nowrap">
                 {hero.headline.line1}
@@ -664,28 +668,28 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="text-body-large mt-2.5 max-w-[min(100%,36rem)] xl:mt-2 xl:text-[1rem] xl:leading-snug 2xl:mt-2.5 2xl:text-[length:clamp(0.875rem,1.5vw+0.5rem,var(--text-body-large-size))] 2xl:leading-[var(--text-body-large-leading)]">
+            <p className="text-body-large mt-2.5 max-w-[min(100%,36rem)] xl:mt-1.5 xl:max-w-[32rem] xl:text-[0.875rem] xl:leading-snug 2xl:mt-2.5 2xl:max-w-[min(100%,36rem)] 2xl:text-[length:clamp(0.875rem,1.5vw+0.5rem,var(--text-body-large-size))] 2xl:leading-[var(--text-body-large-leading)]">
               <span className="block">{hero.description.line1}</span>
               <span className="block">{hero.description.line2}</span>
             </p>
 
             <div
-              className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5 xl:mt-5 2xl:mt-7"
+              className="mt-4 flex w-full max-w-[18rem] flex-col items-stretch gap-2.5 sm:mt-6 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-7 md:gap-5 xl:mt-3.5 xl:gap-4 2xl:mt-7 2xl:gap-5"
               role="group"
               aria-label="Hero actions"
             >
               <a
                 href={hero.ctas.primary.href}
-                className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-2 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] px-1.5 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:w-auto sm:gap-2.5 sm:pl-7 sm:pr-1.5"
+                className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-2 rounded-full border border-foreground-inverse bg-[image:var(--gradient-primary-button)] px-1.5 text-foreground-inverse transition-[var(--transition-common)] hover:opacity-92 sm:h-[3.25rem] sm:w-auto sm:gap-2.5 sm:pl-7 sm:pr-1.5 xl:h-[2.625rem] xl:gap-2 xl:pl-5 xl:pr-1 xl:text-[0.8125rem] 2xl:h-[3.25rem] 2xl:gap-2.5 2xl:pl-7 2xl:pr-1.5 2xl:text-[length:var(--text-button-size)]"
               >
-                <span className="size-6 shrink-0 sm:size-7" aria-hidden />
+                <span className="size-6 shrink-0 sm:size-7 xl:size-5 2xl:size-7" aria-hidden />
                 <span className="whitespace-nowrap">
                   {hero.ctas.primary.label}
                 </span>
-                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black/20 sm:size-7">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-black/20 sm:size-7 xl:size-5 2xl:size-7">
                   <Play
                     aria-hidden
-                    className="size-2.5 fill-foreground-inverse text-foreground-inverse"
+                    className="size-2.5 fill-foreground-inverse text-foreground-inverse xl:size-2 2xl:size-2.5"
                     strokeWidth={0}
                   />
                 </span>
@@ -693,12 +697,12 @@ export function Hero() {
 
               <a
                 href={hero.ctas.secondary.href}
-                className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-5 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:w-auto sm:gap-1.5 sm:px-6"
+                className="text-button inline-flex h-[2.75rem] w-full items-center justify-center gap-1 rounded-full border border-border bg-background-elevated px-5 text-accent-strong transition-[var(--transition-common)] hover:bg-background-muted sm:h-[3.25rem] sm:w-auto sm:gap-1.5 sm:px-6 xl:h-[2.625rem] xl:gap-1 xl:px-5 xl:text-[0.8125rem] 2xl:h-[3.25rem] 2xl:gap-1.5 2xl:px-6 2xl:text-[length:var(--text-button-size)]"
               >
                 {hero.ctas.secondary.label}
                 <ArrowUpRight
                   aria-hidden
-                  className="size-3.5 shrink-0"
+                  className="size-3.5 shrink-0 xl:size-3 2xl:size-3.5"
                   strokeWidth={2.25}
                 />
               </a>
@@ -711,7 +715,7 @@ export function Hero() {
 
           <MobileShowcase />
 
-          <div className="relative z-20 mx-auto mt-28 hidden w-full overflow-visible pb-0 xl:mt-32 xl:block 2xl:mt-40">
+          <div className="relative z-20 mx-auto mt-28 hidden w-full overflow-visible pb-0 xl:mt-14 xl:block 2xl:mt-40">
             <div className="relative aspect-[1400/1078] w-full overflow-visible">
               <div
                 ref={folderStageRef}
@@ -764,10 +768,10 @@ export function Hero() {
               </div>
 
               {/* CSS owns horizontal centering; GSAP only animates Y/opacity. */}
-              <div className="absolute left-1/2 top-[-2%] z-20 w-[min(21%,18.75rem)] -translate-x-1/2 xl:top-[-4%] 2xl:top-[-6%]">
+              <div className="absolute left-1/2 top-[-2%] z-20 w-[min(21%,18.75rem)] -translate-x-1/2 xl:top-[-2%] 2xl:top-[-6%]">
                 <div
                   ref={iphoneRef}
-                  className="translate-y-[50px] will-change-transform"
+                  className="translate-y-[20px] will-change-transform 2xl:translate-y-[50px]"
                 >
                   <div
                     aria-hidden
@@ -795,7 +799,7 @@ export function Hero() {
 
               <div
                 ref={leftStatRef}
-                className="@container absolute top-[2%] left-[8%] z-50 flex w-[min(22%,15.5rem)] translate-y-[70px] items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,0.9rem)] shadow-lg backdrop-blur-lg will-change-transform xl:left-[12%] xl:top-0 2xl:left-[14%] 2xl:top-[-2%]"
+                className="@container absolute top-[2%] left-[8%] z-50 flex w-[min(22%,15.5rem)] translate-y-0 items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,0.9rem)] shadow-lg backdrop-blur-lg will-change-transform xl:left-[12%] xl:top-[-2%] 2xl:left-[14%] 2xl:top-[-2%] 2xl:translate-y-[70px]"
               >
                 <div className="flex w-[18%] shrink-0 flex-col items-center justify-center">
                   {assets.heroShowcase.avatars.map((avatar, index) => (
@@ -823,7 +827,7 @@ export function Hero() {
 
               <div
                 ref={rightStatRef}
-                className="@container absolute top-[4%] right-[6%] z-50 flex w-[min(26%,18rem)] translate-y-[90px] items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,1rem)] shadow-lg backdrop-blur-lg will-change-transform xl:right-[10%] xl:top-[2%] 2xl:right-[12%] 2xl:top-0"
+                className="@container absolute top-[4%] right-[6%] z-50 flex w-[min(26%,18rem)] translate-y-0 items-center gap-[clamp(0.4rem,1.2cqw,0.75rem)] rounded-[clamp(0.85rem,4cqw,1.75rem)] border border-white/40 bg-white/20 p-[clamp(0.5rem,2.5cqw,1rem)] shadow-lg backdrop-blur-lg will-change-transform xl:right-[10%] xl:top-0 2xl:right-[12%] 2xl:top-0 2xl:translate-y-[90px]"
               >
                 <div className="flex aspect-square w-[18%] shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/30">
                   <Image
@@ -847,14 +851,16 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Bottom dissolve — covers the folder overhang into the page */}
+            {/*
+              Bottom dissolve — eases the folder overhang into the next section.
+            */}
             <div
               ref={dissolveRef}
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 -bottom-16 z-[45] h-48 will-change-[opacity] 2xl:-bottom-20 2xl:h-64"
+              className="pointer-events-none absolute inset-x-0 -bottom-16 z-[45] h-64 will-change-[opacity] 2xl:-bottom-20 2xl:h-72"
               style={{
                 background:
-                  "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 35%, transparent) 28%, color-mix(in srgb, var(--color-background) 80%, transparent) 55%, var(--color-background) 82%, var(--color-background) 100%)",
+                  "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 30%, transparent) 20%, color-mix(in srgb, var(--color-background) 75%, transparent) 48%, var(--color-background) 75%, var(--color-background) 100%)",
               }}
             />
           </div>

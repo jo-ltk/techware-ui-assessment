@@ -52,9 +52,8 @@ const industries: Industry[] = [
 // Orbit pivot aligned to the SVG core (ellipse cx/cy + logo center).
 const ORBIT_CENTER_X = (402 / 866) * 100;
 const ORBIT_CENTER_Y = (325 / 618) * 100;
-// Start outside the decorative rings; end near the outer ring so the orbit tightens inward.
-const ORBIT_RADIUS_START_RATIO = 0.4;
-const ORBIT_RADIUS_END_RATIO = 0.24;
+// Fixed wide ring — cards stay spaced out (no inward spiral).
+const ORBIT_RADIUS_RATIO = 0.44;
 const ORBIT_ORIGIN = `${ORBIT_CENTER_X}% ${ORBIT_CENTER_Y}%`;
 // Horizontal card nudge. Negative = left, positive = right.
 const CARDS_OFFSET_X = -6; // desktop (artboard units @ 866-wide) — more negative = left, positive = right
@@ -69,8 +68,6 @@ const LAPTOP_LAYOUT_QUERY = "(min-width: 1280px) and (max-width: 1439.98px)";
 // Nav + copy + gaps (+ card overflow past the artboard) reserved while pinned.
 // Tall desktops still hit max-w-[54.125rem] unchanged (calc resolves larger than the cap).
 const ORBIT_FIT_CHROME = "20.5rem";
-// Soft ease so rotation + inward spiral match the prototype's scrub feel.
-const ORBIT_EASE = gsap.parseEase("power1.inOut");
 
 function getPinOffsetPx() {
   if (typeof window === "undefined") return PIN_OFFSET_PX;
@@ -89,8 +86,8 @@ function ensureScrollTriggerRegistered() {
 }
 
 function getScrollDistance() {
-  // Keep enough scrub room for one orbit turn without a full extra viewport of dead space.
-  return window.innerHeight * 0.55;
+  // Enough scrub room for one full orbit turn.
+  return window.innerHeight * 0.85;
 }
 
 function getOrbitAngle(index: number) {
@@ -118,25 +115,14 @@ export function WhoItsFor() {
 
     if (cards.length !== industries.length) return;
 
-    const orbitRadii = { start: 0, end: 0 };
-
-    const applyOrbitRadius = (progress = 0) => {
-      const t = ORBIT_EASE(progress);
-      const radius = gsap.utils.interpolate(
-        orbitRadii.start,
-        orbitRadii.end,
-        t,
-      );
-      container.style.setProperty("--orbit-radius", `${radius}px`);
-    };
-
-    const updateOrbitMetrics = (progress = 0) => {
+    const applyOrbitRadius = () => {
       const width = container.offsetWidth;
       if (width <= 0) return;
 
-      orbitRadii.start = width * ORBIT_RADIUS_START_RATIO;
-      orbitRadii.end = width * ORBIT_RADIUS_END_RATIO;
-      applyOrbitRadius(progress);
+      container.style.setProperty(
+        "--orbit-radius",
+        `${width * ORBIT_RADIUS_RATIO}px`,
+      );
 
       // Mobile uses raw pixels so the nudge is visible; desktop stays artboard-scaled.
       const offsetPx =
@@ -146,7 +132,7 @@ export function WhoItsFor() {
       container.style.setProperty("--cards-offset-x", `${offsetPx}px`);
     };
 
-    updateOrbitMetrics(0);
+    applyOrbitRadius();
 
     gsap.set(orbit, {
       transformOrigin: ORBIT_ORIGIN,
@@ -164,37 +150,33 @@ export function WhoItsFor() {
     ensureScrollTriggerRegistered();
 
     const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: section,
-        start: () => `top top+=${getPinOffsetPx()}`,
-        end: () => `+=${getScrollDistance()}`,
-        pin: pin,
-        pinSpacing: true,
-        scrub: 1,
-        invalidateOnRefresh: true,
-        onRefresh: (self) => {
-          updateOrbitMetrics(self.progress);
-        },
-        onUpdate: (self) => {
-          const t = ORBIT_EASE(self.progress);
-          const angle = t * FULL_ROTATION;
-
-          applyOrbitRadius(self.progress);
-          gsap.set(orbit, { rotate: angle });
-          cards.forEach((card) => {
-            gsap.set(card, { rotate: -angle });
-          });
+      const tl = gsap.timeline({
+        defaults: { ease: "power1.inOut" },
+        scrollTrigger: {
+          trigger: section,
+          start: () => `top top+=${getPinOffsetPx()}`,
+          end: () => `+=${getScrollDistance()}`,
+          pin: pin,
+          pinSpacing: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          onRefresh: () => {
+            applyOrbitRadius();
+          },
         },
       });
 
-      ScrollTrigger.refresh();
+      // Orbit turns once while cards counter-rotate to stay upright.
+      tl.to(orbit, { rotation: FULL_ROTATION, duration: 1 }, 0);
+      cards.forEach((card) => {
+        tl.to(card, { rotation: -FULL_ROTATION, duration: 1 }, 0);
+      });
+
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     }, section);
 
     const handleResize = () => {
-      const progress =
-        ScrollTrigger.getAll().find((st) => st.trigger === section)
-          ?.progress ?? 0;
-      updateOrbitMetrics(progress);
+      applyOrbitRadius();
       ScrollTrigger.refresh();
     };
 
@@ -225,8 +207,21 @@ export function WhoItsFor() {
       ref={sectionRef}
       id="industries"
       aria-labelledby="who-its-for-heading"
-      className="relative overflow-x-clip bg-background px-4 pt-0 pb-6 text-center sm:px-5 sm:pt-2 sm:pb-8 md:px-6 md:pt-3 md:pb-10 xl:-mt-6 xl:pt-0 xl:pb-8 min-[1440px]:-mt-4 min-[1440px]:pt-0 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-0 max-md:[@media(max-height:800px)]:pb-4"
+      className="relative z-50 overflow-x-clip bg-transparent px-4 pt-0 pb-6 text-center sm:px-5 sm:pt-2 sm:pb-8 md:px-6 md:pt-3 md:pb-10 xl:-mt-24 xl:pt-0 xl:pb-8 min-[1440px]:-mt-20 min-[1440px]:pt-0 min-[1440px]:pb-10 max-md:[@media(max-height:800px)]:pt-0 max-md:[@media(max-height:800px)]:pb-4"
     >
+      {/*
+        Soft top fade over the hero folder, then solid page fill.
+        Section stays z-50 so the folder bottom is covered once the gradient
+        reaches full opacity — no hard cream cut, no dashed-border bleed.
+      */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-background) 28%, transparent) 3.5rem, color-mix(in srgb, var(--color-background) 72%, transparent) 8rem, var(--color-background) 13rem, var(--color-background) 100%)",
+        }}
+      />
       <div
         ref={pinRef}
         className="relative z-10 flex flex-col items-center overflow-visible"
@@ -282,7 +277,7 @@ export function WhoItsFor() {
           style={{
             // Shrink on short viewports so the full orbit stays in the pinned frame;
             // tall desktops still resolve to the larger artboard cap.
-            maxWidth: `min(62rem, calc((100svh - ${ORBIT_FIT_CHROME}) * 866 / 618))`,
+            maxWidth: `min(68rem, calc((100svh - ${ORBIT_FIT_CHROME}) * 866 / 618))`,
           }}
         >
           <div
@@ -291,7 +286,7 @@ export function WhoItsFor() {
             style={
               {
                 // Fallback before JS measures — keeps cards on the ring, not stacked at center.
-                "--orbit-radius": "40%",
+                "--orbit-radius": "44%",
                 "--cards-offset-x": "0px",
               } as CSSProperties
             }
@@ -302,7 +297,7 @@ export function WhoItsFor() {
               width={assets.whoItsFor.core.width}
               height={assets.whoItsFor.core.height}
               aria-hidden
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 62rem"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 68rem"
               className="pointer-events-none absolute inset-0 z-0 h-full w-full origin-[46.42%_52.59%] scale-[1.22]"
               priority
             />
@@ -338,7 +333,7 @@ export function WhoItsFor() {
                           className="w-fit will-change-transform"
                         >
                           {/* Scale wrapper stays outside GSAP rotate so scrub transforms aren't overwritten */}
-                          <div className="w-fit origin-center scale-[0.55] sm:scale-[0.7] md:scale-[0.85] lg:scale-[1] xl:scale-[1.15]">
+                          <div className="w-fit origin-center scale-[0.55] sm:scale-[0.7] md:scale-[0.85] lg:scale-[1] xl:scale-[1.05]">
                             <OrbitCard industry={industry} />
                           </div>
                         </div>
@@ -363,16 +358,16 @@ function OrbitCard({ industry }: { industry: Industry }) {
   const fullLabel = label.join(" ");
 
   return (
-    <div className="inline-flex w-fit max-w-none items-center gap-2.5 rounded-pill border border-white bg-surface-glass-strong px-3.5 py-2.5 text-left shadow-subtle backdrop-blur-[6px] sm:gap-3 sm:px-4 sm:py-3">
-      <span className="flex size-7 shrink-0 items-center justify-center text-accent sm:size-8">
+    <div className="inline-flex w-fit max-w-none items-center gap-2 rounded-pill border border-white bg-surface-glass-strong px-3 py-2 text-left shadow-subtle backdrop-blur-[6px] sm:gap-2.5 sm:px-3.5 sm:py-2.5">
+      <span className="flex size-6 shrink-0 items-center justify-center text-accent sm:size-7">
         <Icon
           aria-hidden
-          className="size-5 stroke-[1.75] sm:size-[1.375rem]"
+          className="size-4 stroke-[1.75] sm:size-[1.125rem]"
         />
       </span>
       <span
         aria-label={fullLabel}
-        className="shrink-0 whitespace-nowrap font-sans text-[0.8125rem] font-normal leading-[1.15] tracking-[-0.03em] text-foreground-muted sm:text-[0.9375rem] md:text-[1rem] lg:text-[1.0625rem]"
+        className="shrink-0 whitespace-nowrap font-sans text-[0.6875rem] font-medium leading-[1.2] tracking-[-0.02em] text-foreground-muted sm:text-[0.75rem] md:text-[0.8125rem] lg:text-[0.875rem]"
       >
         {label[0]}
         <br />
